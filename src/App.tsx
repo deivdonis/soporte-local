@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute, AdminRoute } from '@/components/ProtectedRoute';
@@ -25,7 +25,7 @@ function CategoryPageWrapper() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/recuperar" element={<ForgotPasswordPage />} />
@@ -56,7 +56,7 @@ function App() {
             />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }

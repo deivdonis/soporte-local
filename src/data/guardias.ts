@@ -3,46 +3,45 @@ export interface GuardiaPerson {
   color: string; bg: string; border: string;
 }
 
-const neutralColor = '#94a3b8';
-const neutralBg = 'rgba(148,163,184,0.10)';
-const neutralBorder = 'rgba(148,163,184,0.25)';
+function swatch(color: string) {
+  return { color, bg: `${color}26`, border: `${color}4d` };
+}
 
 export const torreRotation: GuardiaPerson[] = [
-  { code: 'DAVI', name: 'David', full: 'David', color: neutralColor, bg: neutralBg, border: neutralBorder },
-  { code: 'FRAN', name: 'Fran', full: 'Francisco', color: neutralColor, bg: neutralBg, border: neutralBorder },
-  { code: 'NACHO', name: 'Nacho', full: 'Nacho', color: neutralColor, bg: neutralBg, border: neutralBorder },
-  { code: 'KIKE', name: 'Kike', full: 'Kike', color: neutralColor, bg: neutralBg, border: neutralBorder },
+  { code: 'DAVI', name: 'David', full: 'David', ...swatch('#3b82f6') },
+  { code: 'FRAN', name: 'Fran', full: 'Francisco', ...swatch('#10b981') },
+  { code: 'NACHO', name: 'Nacho', full: 'Nacho', ...swatch('#a855f7') },
+  { code: 'KIKE', name: 'Kike', full: 'Kike', ...swatch('#f97316') },
 ];
 
 export const hospitalRotation: GuardiaPerson[] = [
-  { code: 'DFER', name: 'David', full: 'David Fernández', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.3)' },
-  { code: 'MPAR', name: 'María', full: 'María Parra', color: neutralColor, bg: neutralBg, border: neutralBorder },
-  { code: 'SZAM', name: 'Sergio', full: 'Sergio Zamora', color: neutralColor, bg: neutralBg, border: neutralBorder },
-  { code: 'OFRA', name: 'Óscar', full: 'Óscar Fraile', color: neutralColor, bg: neutralBg, border: neutralBorder },
-  { code: 'FRUB', name: 'Fernando', full: 'Fernando Rubio', color: neutralColor, bg: neutralBg, border: neutralBorder },
+  { code: 'DFER', name: 'David', full: 'David Fernández', ...swatch('#fde047') },
+  { code: 'MPAR', name: 'María', full: 'María Parra', ...swatch('#10b981') },
+  { code: 'SZAM', name: 'Sergio', full: 'Sergio Zamora', ...swatch('#a855f7') },
+  { code: 'OFRA', name: 'Óscar', full: 'Óscar Fraile', ...swatch('#f97316') },
+  { code: 'FRUB', name: 'Fernando', full: 'Fernando Rubio', ...swatch('#22d3ee') },
 ];
 
 export const rotationStartDate = new Date(2025, 11, 29); // Lunes 29 Dic 2025
 
-export function getHospitalGuardia(date: Date): GuardiaPerson {
+// Días completos entre dos fechas usando componentes UTC de calendario,
+// para que no se desalineen por cambios de horario (DST) a mitad de semana.
+function diffCalendarDays(from: Date, to: Date): number {
   const msPerDay = 86400000;
-  const start = new Date(rotationStartDate);
-  start.setHours(0, 0, 0, 0);
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  const diffDays = Math.floor((d.getTime() - start.getTime()) / msPerDay);
+  const a = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate());
+  const b = Date.UTC(to.getFullYear(), to.getMonth(), to.getDate());
+  return Math.round((b - a) / msPerDay);
+}
+
+export function getHospitalGuardia(date: Date): GuardiaPerson {
+  const diffDays = diffCalendarDays(rotationStartDate, date);
   if (diffDays < 0) return hospitalRotation[0];
   const weekIndex = Math.floor(diffDays / 7);
   return hospitalRotation[weekIndex % hospitalRotation.length];
 }
 
 export function getHospitalGuardiaIndex(date: Date): number {
-  const msPerDay = 86400000;
-  const start = new Date(rotationStartDate);
-  start.setHours(0, 0, 0, 0);
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  const diffDays = Math.floor((d.getTime() - start.getTime()) / msPerDay);
+  const diffDays = diffCalendarDays(rotationStartDate, date);
   if (diffDays < 0) return 0;
   const weekIndex = Math.floor(diffDays / 7);
   return weekIndex % hospitalRotation.length;

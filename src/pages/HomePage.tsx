@@ -169,10 +169,17 @@ function GuardiaCalendar({
             const holiday = isMadridHoliday(date);
             const person = getPerson(date);
             const isToday = isSameDay(date, today);
+            const dow = date.getDay();
+            const isWeekend = dow === 0 || dow === 6;
 
             const style: React.CSSProperties = holiday
               ? { background: 'rgba(245, 158, 11, 0.25)', borderColor: 'rgba(245, 158, 11, 0.5)' }
               : { background: person.bg, borderColor: person.border };
+
+            if (isWeekend && !holiday) {
+              style.backgroundImage =
+                'repeating-linear-gradient(135deg, rgba(255,255,255,0.09) 0px, rgba(255,255,255,0.09) 3px, transparent 3px, transparent 8px)';
+            }
 
             if (isToday) {
               style.boxShadow = `inset 0 0 0 2px ${person.color}`;
@@ -183,6 +190,7 @@ function GuardiaCalendar({
                 key={date.toISOString()}
                 className={cn(
                   'flex aspect-square flex-col items-center justify-center rounded-lg border text-[11px]',
+                  isWeekend ? 'border-dashed' : 'border-solid',
                   holiday && 'text-white'
                 )}
                 style={style}

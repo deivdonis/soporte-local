@@ -52,8 +52,17 @@ export function SugerenciasPage() {
     const updated = [newSuggestion, ...suggestions];
     setSuggestions(updated);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+
+    // Generar email mailto
+    const subject = encodeURIComponent('Sugerencias para mejorar la página de soporte local');
+    const body = encodeURIComponent(
+      `Sugerencia de: ${user?.name ?? 'Anónimo'}\nFecha: ${new Date().toLocaleString('es-ES')}\n\n${text.trim()}`
+    );
+    const mailtoLink = `mailto:deivdonis@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = mailtoLink;
+
     setText('');
-    toast({ title: 'Sugerencia enviada', description: 'Gracias por tu aportación.' });
+    toast({ title: 'Sugerencia guardada', description: 'Se abrirá tu cliente de correo para enviarla.' });
   };
 
   return (

@@ -43,16 +43,16 @@ const quickAccess = [
     classes: 'bg-blue-500/10 text-blue-400 ring-blue-500/20',
   },
   {
-    label: 'Sugerencias',
-    to: '/sugerencias',
-    icon: Lightbulb,
-    classes: 'bg-yellow-500/10 text-yellow-400 ring-yellow-500/20',
-  },
-  {
     label: 'Informe mensual',
     to: '/informe',
     icon: FileBarChart,
     classes: 'bg-pink-500/10 text-pink-400 ring-pink-500/20',
+  },
+  {
+    label: 'Sugerencias',
+    to: '/sugerencias',
+    icon: Lightbulb,
+    classes: 'bg-yellow-500/10 text-yellow-400 ring-yellow-500/20',
   },
 ];
 
@@ -173,13 +173,8 @@ function GuardiaCalendar({
             const isWeekend = dow === 0 || dow === 6;
 
             const style: React.CSSProperties = holiday
-              ? { background: 'rgba(245, 158, 11, 0.25)', borderColor: 'rgba(245, 158, 11, 0.5)' }
-              : { background: person.bg, borderColor: person.border };
-
-            if (isWeekend && !holiday) {
-              style.backgroundImage =
-                'repeating-linear-gradient(135deg, rgba(255,255,255,0.09) 0px, rgba(255,255,255,0.09) 3px, transparent 3px, transparent 8px)';
-            }
+              ? { background: 'rgba(245, 158, 11, 0.35)', borderColor: 'rgba(245, 158, 11, 0.5)' }
+              : { background: isWeekend ? person.bg.replace('26)', '4d)') : person.bg, borderColor: person.border };
 
             if (isToday) {
               style.boxShadow = `inset 0 0 0 2px ${person.color}`;

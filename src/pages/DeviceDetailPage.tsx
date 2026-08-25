@@ -76,6 +76,14 @@ export function DeviceDetailPage() {
     if (m.calibration) shortcutEntries.push(`Calibración: ${m.calibration}`);
   }
 
+  if (device.telephoneInfo) {
+    const t = device.telephoneInfo;
+    (t.codes ?? []).forEach((c) => shortcutEntries.push(`Código: ${c}`));
+    if (t.voicemail) shortcutEntries.push(`Correo de voz: ${t.voicemail}`);
+    if (t.speedDial) shortcutEntries.push(`Marcación rápida: ${t.speedDial}`);
+    if (t.transfer) shortcutEntries.push(`Transferencia: ${t.transfer}`);
+  }
+
   const firstDriver = device.drivers[0];
   const firstManual = device.manuals[0];
 
@@ -161,11 +169,55 @@ export function DeviceDetailPage() {
           </motion.div>
         )}
 
-        {shortcutEntries.length > 0 && (
+        {device.telephoneInfo && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.15 }}
+            className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
+          >
+            <h2 className="mb-4 text-base font-bold text-white">Información del teléfono</h2>
+            <div className="space-y-4">
+              {device.telephoneInfo.ip && (
+                <div>
+                  <h3 className="text-sm font-semibold text-primary">Dirección IP</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{device.telephoneInfo.ip}</p>
+                </div>
+              )}
+              {device.telephoneInfo.firmware && (
+                <div>
+                  <h3 className="text-sm font-semibold text-primary">Firmware</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{device.telephoneInfo.firmware}</p>
+                </div>
+              )}
+              {device.telephoneInfo.factoryReset && (
+                <div>
+                  <h3 className="text-sm font-semibold text-primary">Reset de fábrica</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{device.telephoneInfo.factoryReset}</p>
+                </div>
+              )}
+              {device.telephoneInfo.reset && device.telephoneInfo.reset.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-primary">Pasos para reset</h3>
+                  <ol className="mt-2 space-y-1">
+                    {device.telephoneInfo.reset.map((step, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {shortcutEntries.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
             className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
           >
             <h2 className="mb-4 text-base font-bold text-white">Atajos, trucos y combinaciones</h2>
@@ -189,7 +241,7 @@ export function DeviceDetailPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
+            transition={{ duration: 0.3, delay: 0.25 }}
             className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
           >
             <h2 className="mb-4 text-base font-bold text-white">Solución de problemas</h2>
@@ -217,7 +269,7 @@ export function DeviceDetailPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.25 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
             className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
           >
             <h2 className="mb-4 text-base font-bold text-white">Historial</h2>

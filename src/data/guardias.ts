@@ -10,7 +10,7 @@ function swatch(color: string) {
 export const torreRotation: GuardiaPerson[] = [
   { code: 'DAVI', name: 'David', full: 'David', ...swatch('#3b82f6') },
   { code: 'FRAN', name: 'Fran', full: 'Francisco', ...swatch('#10b981') },
-  { code: 'NACHO', name: 'Nacho', full: 'Nacho', ...swatch('#a855f7') },
+  { code: 'ANDREI', name: 'Andrei', full: 'Andrei', ...swatch('#a855f7') },
   { code: 'KIKE', name: 'Kike', full: 'Kike', ...swatch('#f97316') },
 ];
 
@@ -48,13 +48,21 @@ export function getHospitalGuardiaIndex(date: Date): number {
 }
 
 export function getTorreGuardia(date: Date): GuardiaPerson {
-  const monthIndex = (date.getMonth() + date.getFullYear() * 12) - (6 + 2026 * 12);
+  // En agosto no se encarga nadie, se mantiene la guardia del mes anterior
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  const adjustedMonth = month === 7 ? 6 : month; // Si es agosto, usa julio
+  const monthIndex = (adjustedMonth + year * 12) - (6 + 2026 * 12);
   const rotationIndex = ((monthIndex % 4) + 4) % 4;
   return torreRotation[rotationIndex];
 }
 
 export function getTorreGuardiaIndex(date: Date): number {
-  const monthIndex = (date.getMonth() + date.getFullYear() * 12) - (6 + 2026 * 12);
+  // En agosto no se encarga nadie, se mantiene la guardia del mes anterior
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  const adjustedMonth = month === 7 ? 6 : month; // Si es agosto, usa julio
+  const monthIndex = (adjustedMonth + year * 12) - (6 + 2026 * 12);
   return ((monthIndex % 4) + 4) % 4;
 }
 

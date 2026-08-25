@@ -1,5 +1,5 @@
 export type DeviceCategory =
-  | 'portatiles' | 'sobremesas' | 'monitores' | 'impresoras'
+  | 'portatiles' | 'sobremesas' | 'monitores' | 'impresoras' | 'telefonos'
   | 'equipos-clinicos' | 'perifericos' | 'otros';
 
 export interface DeviceModel {
@@ -35,6 +35,11 @@ export interface DeviceModel {
     factoryMode?: string; osdUnlock?: string;
     buttonCombos?: string[]; calibration?: string;
   };
+  telephoneInfo?: {
+    ip?: string; dhcp?: boolean; firmware?: string;
+    reset?: string[]; factoryReset?: string; codes?: string[];
+    voicemail?: string; speedDial?: string; transfer?: string;
+  };
   factoryReset?: { software: string; buttons: string };
 }
 
@@ -43,6 +48,7 @@ export const deviceCategories: { id: DeviceCategory; name: string; icon: string;
   { id: 'sobremesas', name: 'Sobremesas', icon: 'Monitor', description: 'Ordenadores de sobremesa y workstations' },
   { id: 'impresoras', name: 'Impresoras', icon: 'Printer', description: 'Impresoras térmicas, láser y de inyección' },
   { id: 'monitores', name: 'Monitores', icon: 'Monitor', description: 'Pantallas y monitores de todo tipo' },
+  { id: 'telefonos', name: 'Teléfonos', icon: 'Phone', description: 'Teléfonos IP y sistemas de telefonía' },
   { id: 'equipos-clinicos', name: 'Equipos Clínicos', icon: 'HeartPulse', description: 'Equipos médicos y de monitorización' },
   { id: 'perifericos', name: 'Periféricos', icon: 'Mouse', description: 'Ratones, teclados, escáneres y más' },
   { id: 'otros', name: 'Otros', icon: 'Package', description: 'Otros dispositivos técnicos' },
@@ -2445,6 +2451,88 @@ export const devices: DeviceModel[] = [
       software: 'Zebra Printer Setup Utility > Restore Factory Defaults',
       buttons: 'Apagar, mantener Power + Feed, encender y mantener 5 segundos, soltar',
     },
+  },
+  {
+    id: 'cisco-8851',
+    brand: 'Cisco',
+    model: '8851',
+    category: 'telefonos',
+    description: 'Teléfono IP empresarial con pantalla táctil de 5 pulgadas y capacidades avanzadas de llamadas.',
+    specs: [
+      { label: 'Tipo', value: 'Teléfono IP empresarial' },
+      { label: 'Pantalla', value: 'LCD 5" a color 800x480' },
+      { label: 'Líneas', value: 'Hasta 6 líneas simultáneas' },
+      { label: 'Conectividad', value: 'Gigabit Ethernet PoE, Bluetooth, WiFi' },
+      { label: 'Codec', value: 'G.711, G.729, iLBC, Opus' },
+    ],
+    drivers: [
+      { name: 'Firmware Cisco', url: 'https://software.cisco.com', os: 'Cisco UC', version: '14.0' },
+    ],
+    manuals: [
+      { name: 'Guía rápida de usuario', url: 'https://www.cisco.com/c/en/us/support/collaboration-endpoints/ip-phone-8800-series/series.html', type: 'PDF' },
+      { name: 'Manual completo', url: 'https://www.cisco.com/c/en/us/support/collaboration-endpoints/ip-phone-8800-series/series.html', type: 'PDF' },
+    ],
+    links: [
+      { name: 'Soporte Cisco', url: 'https://www.cisco.com/c/en/us/support/collaboration-endpoints/ip-phone-8800-series/series.html' },
+      { name: 'Actualización de firmware', url: 'https://software.cisco.com' },
+    ],
+    shortcuts: [
+      'Botón Inicio - Pantalla principal',
+      'Botón Atrás - Volver a menú anterior',
+      'Botón Silencio - Activar/desactivar micrófono',
+      'Botón Altavoz - Cambiar a modo manos libres',
+      'Volumen +/- - Ajustar volumen de llamada',
+    ],
+    troubleshooting: [
+      {
+        title: 'Teléfono no obtiene IP',
+        steps: [
+          'Comprobar cable Ethernet conectado',
+          'Verificar que el puerto PoE está activo en el switch',
+          'Reiniciar el teléfono (desenchufar y enchufar)',
+          'Verificar configuración DHCP en el servidor',
+        ],
+      },
+      {
+        title: 'No hay audio en las llamadas',
+        steps: [
+          'Comprobar volumen del teléfono no está en 0',
+          'Verificar micrófono no está en silencio (botón Silencio)',
+          'Probar llamada de prueba de audio',
+          'Reiniciar el teléfono',
+        ],
+      },
+      {
+        title: 'Pantalla no responde',
+        steps: ['Reiniciar el teléfono (apagar/encender)', 'Actualizar firmware desde la página de administración'],
+      },
+    ],
+    telephoneInfo: {
+      ip: 'DHCP automático o estático vía web',
+      dhcp: true,
+      firmware: '14.0 y superior',
+      reset: [
+        'Pulsar el botón Settings (engranaje)',
+        'Ir a Administration > Reset Phone',
+        'Seleccionar Factory Reset',
+        'Confirmar (el teléfono se reiniciará)',
+      ],
+      factoryReset: 'Administration > Reset Phone > Factory Reset',
+      codes: [
+        'Acceso admin: Settings > Administration (contraseña admin por defecto)',
+        'Código de transferencia de llamada: *72 (activar), *73 (desactivar)',
+        'Desviador de llamadas: *21 (activar), *21# (desactivar)',
+        'No molestar: *78 (activar), *79 (desactivar)',
+      ],
+      voicemail: 'Pulsar botón de correo de voz o marcar extensión de correo',
+      speedDial: 'Largo en teclas numéricas (1-9) desde Administration > Speed Dials',
+      transfer: 'Consulta: Pulsar Transfer, marcar número, esperar respuesta, pulsar Transfer de nuevo | Ciega: Transfer, marcar, colgar',
+    },
+    notes: [
+      'Requiere servidor Cisco Call Manager o similar',
+      'Soporta video en modelos con cámara',
+      'Integración con Microsoft Teams y Zoom disponible',
+    ],
   },
 ];
 

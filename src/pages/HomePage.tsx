@@ -6,7 +6,6 @@ import {
   BookOpen,
   Network,
   Lightbulb,
-  FileBarChart,
   CalendarDays,
   ChevronLeft,
   ChevronRight,

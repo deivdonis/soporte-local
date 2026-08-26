@@ -1067,6 +1067,33 @@ export const devices: DeviceModel[] = [
     },
   },
   {
+    id: 'toshiba-satellite-a40-c',
+    brand: 'Toshiba',
+    model: 'Satellite Pro A40-C',
+    category: 'portatiles',
+    description: 'Portátil corporativo de 14 pulgadas, modelo robusto orientado a usuarios móviles.',
+    specs: [
+      { label: 'CPU', value: 'Intel Core i5-6200U' },
+      { label: 'RAM', value: '8 GB DDR4' },
+      { label: 'Almacenamiento', value: '256 GB SSD' },
+      { label: 'Pantalla', value: '14" FHD' },
+      { label: 'SO', value: 'Windows 7/10 Pro' },
+    ],
+    drivers: toshibaDrivers,
+    manuals: [{ name: 'Manual de usuario', url: 'https://dynabook.com/support', type: 'PDF' }],
+    links: toshibaLinks,
+    bios: toshibaBios,
+    shortcuts: toshibaShortcuts,
+    troubleshooting: [
+      { title: 'No conecta a WiFi', steps: ['Actualizar drivers de red Realtek', 'Comprobar que WiFi está habilitado (botón Fn)', 'Reiniciar el adaptador en Administrador de dispositivos'] },
+    ],
+    notes: ['Fecha Fin Garantía SAP: 31/07/2021', 'Modelo en fase final de vida útil'],
+    factoryReset: {
+      software: 'Inicio > Configuración > Sistema > Recuperación > Restablecer este PC',
+      buttons: 'F8 al arrancar > Toshiba Recovery',
+    },
+  },
+  {
     id: 'fujitsu-lifebook-e559',
     brand: 'Fujitsu-Siemens',
     model: 'LifeBook E5510 / E559',

@@ -10,6 +10,7 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Zap,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -43,9 +44,9 @@ const quickAccess = [
     classes: 'bg-blue-500/10 text-blue-400 ring-blue-500/20',
   },
   {
-    label: 'Informe mensual',
-    to: '/informe',
-    icon: FileBarChart,
+    label: 'Procedimientos',
+    to: '/procedimientos',
+    icon: Zap,
     classes: 'bg-pink-500/10 text-pink-400 ring-pink-500/20',
   },
   {

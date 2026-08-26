@@ -11,6 +11,8 @@ import { ManualesPage, ManualDetailPage } from '@/pages/ManualesPage';
 import { RedesPage } from '@/pages/RedesPage';
 import { SugerenciasPage } from '@/pages/SugerenciasPage';
 import { InformePage } from '@/pages/InformePage';
+import { ProcedimientosPage } from '@/pages/ProcedimientosPage';
+import { IrreparablesPage } from '@/pages/IrreparablesPage';
 import { AdminPage } from '@/pages/AdminPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { deviceCategories, type DeviceCategory } from '@/data/devices';
@@ -44,6 +46,8 @@ function App() {
             <Route path="/manuales/:id" element={<ManualDetailPage />} />
             <Route path="/redes" element={<RedesPage />} />
             <Route path="/sugerencias" element={<SugerenciasPage />} />
+            <Route path="/procedimientos" element={<ProcedimientosPage />} />
+            <Route path="/procedimientos/irreparables" element={<IrreparablesPage />} />
             <Route path="/informe" element={<InformePage />} />
             <Route path="/perfil" element={<ProfilePage />} />
             <Route

@@ -28,24 +28,64 @@ Saludos`;
 
 const PASOS_MANUAL = [
   {
-    title: 'Descargar la plantilla',
-    description: 'Pulsa "Descargar Plantilla" para obtener el documento Word oficial de baja de material.',
+    title: 'Realizar el informe de irreparabilidad "IRREPARABLES PLANTILLA NUEVA(IRREPARABLE INCXXXXXXX)"',
+    description: `en PDF con los 3 puntos obligatorios:
+
+EJEMPLO:
+
+IMPRESORA IRREPARABLE POR OBSOLESCENCIA.
+FUSOR AVERIADO
+USUARIO OPERATIVO
+CONECTADA EN LOCAL.
+
+NOTA:
+AL RELLENAR EL WORD NO OLVIDAR CAMBIAR EL Nº ticket FARO: INC000002056490
+EL NOMBRE DEL PDF HA DE SER  IRREPARABLE INCXXXXXXX
+Recuerda cumplimentar la fecha del día en que se da de baja el material.`,
   },
   {
-    title: 'Rellenar los datos',
-    description: 'Abre el documento descargado y completa los campos: Centro, Dirección, Teléfono, Contacto, Datos del equipo y Motivo de la baja.',
+    title: 'Añadimos una nota tipo Seguimiento CESUS',
+    description: `adjuntando el informe de irreparabilidad EN PDF y el siguiente comentario:
+
+Máquina irreparable según procedimiento.
+Tipo: Impresora
+Marca: Brother
+Modelo: 5250DN
+Número de Serie: E63659A8J435165
+Nº sap: NO`,
   },
   {
-    title: 'Adjuntar en CESUS',
-    description: 'Adjunta el informe relleno en una nota tipo Seguimiento CESUS del ticket FARO correspondiente.',
+    title: 'En Categoría de resolución',
+    description: 'Seleccionamos IRREPARABLE y el activo afectado.',
   },
   {
-    title: 'Categoría de resolución',
-    description: 'Selecciona la categoría de resolución: IRREPARABLE y cierra con Resolución autom. Notificada.',
+    title: 'Cerramos con Resolución autom. Notificada',
+    description: `con el comentario:
+
+#:2PRE Máquina irreparable según procedimiento.
+MARCA:
+MODELO:
+NUMERO DE SERIE:
+SAP:`,
   },
   {
-    title: 'Enviar el correo',
-    description: 'Pulsa "Generar Correo" para abrir Outlook con los destinatarios, copia y cuerpo ya rellenados. Completa los datos del equipo antes de enviarlo.',
+    title: 'Enviar un correo a IRREPARABLE_MD@DXC.COM con:',
+    description: `Asunto:
+IRREPARABLE INCXXXXXXX
+
+Adjuntar el informe:
+y los 4 puntos del motivo en el cuerpo del mensaje.
+
+Buenos días,
+
+Se adjunta informe de irreparable
+Los datos del equipo son:
+MARCA:
+MODELO:
+NUMERO DE SERIE:
+SAP:
+
+Saludos`,
   },
 ];
 
@@ -115,7 +155,7 @@ export function IrreparablesPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-white">{paso.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{paso.description}</p>
+                  <p className="mt-1 whitespace-pre-line text-sm text-muted-foreground">{paso.description}</p>
                 </div>
               </div>
             ))}

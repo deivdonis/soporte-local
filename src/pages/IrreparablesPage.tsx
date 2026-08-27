@@ -34,10 +34,10 @@ const MARCAS_COMUNES = {
 
 const MODELOS_POR_MARCA: Record<string, string[]> = {
   'Brother': ['5250DN', 'L8360CDW', 'HL-L2350DW', 'Otros'],
-  'HP': ['LaserJet Pro', 'OfficeJet', 'EliteBook', 'ProDesk', 'Otros'],
+  'HP': ['EliteDesk 800 G3 SFF', 'EliteDesk 800 G4 SFF', 'EliteDesk 800 G4 Tower', 'EliteDesk 705 G4 SFF', 'LaserJet Pro', 'OfficeJet', 'EliteBook', 'ProDesk', 'Otros'],
   'Canon': ['imagePRUNNER', 'LBP', 'Otros'],
   'Motorola': ['MC9090', 'MC9200', 'Otros'],
-  'Lenovo': ['ThinkPad', 'ThinkCentre', 'Otros'],
+  'Lenovo': ['ThinkPad E15', 'ThinkPad T14', 'ThinkPad X1 Carbon', 'ThinkCentre M90', 'ThinkCentre M710', 'ThinkCentre M920', 'Otros'],
   'Dell': ['Inspiron', 'Latitude', 'OptiPlex', 'Otros'],
   'Toshiba': ['Satellite', 'Tecra', 'Otros'],
   'Fujitsu': ['LifeBook', 'Otros'],
@@ -66,84 +66,140 @@ function generatePDFContent(data: IrreparableForm): string {
     <head>
       <meta charset="UTF-8">
       <style>
-        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px; }
-        .header h1 { margin: 0; font-size: 24px; color: #333; }
-        .header p { margin: 5px 0; color: #666; }
-        .section { margin: 25px 0; }
-        .section-title { font-size: 14px; font-weight: bold; color: #fff; background: #333; padding: 8px 12px; margin-bottom: 10px; }
-        .field { margin: 12px 0; }
-        .field-label { font-weight: bold; color: #333; font-size: 12px; }
-        .field-value { color: #555; margin-top: 3px; padding: 8px; background: #f5f5f5; border-left: 3px solid #0066cc; }
-        .motivos { display: flex; flex-direction: column; gap: 8px; }
-        .motivo-item { padding: 8px; background: #fff3cd; border-left: 3px solid #ff9800; }
-        .footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 11px; color: #666; text-align: center; }
-        @media print { body { margin: 0; } }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          line-height: 1.5;
+          color: #2c3e50;
+          background: #f8f9fa;
+        }
+        .container { max-width: 800px; margin: 0 auto; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header {
+          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+          color: white;
+          padding: 40px;
+          text-align: center;
+          border-bottom: 5px solid #fbbf24;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .section { padding: 30px 40px; border-bottom: 1px solid #e5e7eb; }
+        .section-title {
+          font-size: 13px;
+          font-weight: 700;
+          color: white;
+          background: #1e40af;
+          padding: 10px 15px;
+          margin: -30px -40px 20px -40px;
+          padding-left: 40px;
+          padding-top: 15px;
+          border-left: 5px solid #fbbf24;
+        }
+        .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .field { display: flex; flex-direction: column; }
+        .field-label { font-size: 12px; font-weight: 600; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .field-value {
+          padding: 10px 12px;
+          background: #f0f4ff;
+          border-left: 3px solid #2563eb;
+          font-size: 14px;
+          color: #2c3e50;
+          border-radius: 2px;
+        }
+        .field.full { grid-column: 1 / -1; }
+        .motivos-section { margin-top: 20px; }
+        .motivos-list { display: flex; flex-direction: column; gap: 10px; }
+        .motivo-item {
+          padding: 12px 15px;
+          background: #fffbeb;
+          border-left: 4px solid #fbbf24;
+          border-radius: 2px;
+          font-size: 14px;
+        }
+        .footer {
+          background: #f3f4f6;
+          padding: 20px 40px;
+          text-align: center;
+          font-size: 12px;
+          color: #6b7280;
+          border-top: 1px solid #e5e7eb;
+        }
+        .step-item { margin: 8px 0; }
+        .step-item strong { color: #2563eb; }
+        @media print {
+          body { background: white; }
+          .container { box-shadow: none; }
+        }
       </style>
     </head>
     <body>
-      <div class="header">
-        <h1>INFORME DE IRREPARABILIDAD</h1>
-        <p>Sanidad - Procedimiento de Equipos Irreparables</p>
-      </div>
+      <div class="container">
+        <div class="header">
+          <h1>INFORME DE IRREPARABILIDAD</h1>
+          <p>Departamento de Sanidad - Procedimiento de Equipos Irreparables</p>
+        </div>
 
-      <div class="section">
-        <div class="section-title">DATOS DEL INCIDENTE</div>
-        <div class="field">
-          <div class="field-label">Nº Ticket FARO:</div>
-          <div class="field-value">${ticketCompleto}</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Fecha de Baja:</div>
-          <div class="field-value">${new Date(data.fechaBaja).toLocaleDateString('es-ES')}</div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">EQUIPO AFECTADO</div>
-        <div class="field">
-          <div class="field-label">Tipo de Equipo:</div>
-          <div class="field-value">${data.tipoEquipo}</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Marca:</div>
-          <div class="field-value">${data.marca}</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Modelo:</div>
-          <div class="field-value">${data.modelo}</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Número de Serie:</div>
-          <div class="field-value">${data.numeroSerie}</div>
-        </div>
-        <div class="field">
-          <div class="field-label">SAP:</div>
-          <div class="field-value">${data.sap}</div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">MOTIVO DE IRREPARABILIDAD</div>
-        <div class="motivos">
-          ${data.motivos.map((m, i) => `<div class="motivo-item"><strong>${i + 1}.</strong> ${m}</div>`).join('')}
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">PRÓXIMOS PASOS</div>
-        <div class="field">
-          <div class="field-value">
-            1. Adjuntar este informe en nota tipo Seguimiento CESUS<br>
-            2. Seleccionar categoría de resolución: IRREPARABLE<br>
-            3. Cerrar con Resolución autom. Notificada<br>
-            4. Notificar a irreparable_MD@dxc.com
+        <div class="section">
+          <div class="section-title">DATOS DEL INCIDENTE</div>
+          <div class="fields-grid">
+            <div class="field">
+              <div class="field-label">Nº Ticket FARO</div>
+              <div class="field-value">${ticketCompleto}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Fecha de Baja</div>
+              <div class="field-value">${new Date(data.fechaBaja).toLocaleDateString('es-ES')}</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="footer">
-        <p>Informe generado el ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}</p>
+        <div class="section">
+          <div class="section-title">EQUIPO AFECTADO</div>
+          <div class="fields-grid">
+            <div class="field">
+              <div class="field-label">Tipo de Equipo</div>
+              <div class="field-value">${data.tipoEquipo}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Marca</div>
+              <div class="field-value">${data.marca}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Modelo</div>
+              <div class="field-value">${data.modelo}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Número de Serie</div>
+              <div class="field-value">${data.numeroSerie}</div>
+            </div>
+            <div class="field full">
+              <div class="field-label">SAP</div>
+              <div class="field-value">${data.sap || 'No especificado'}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">MOTIVO DE IRREPARABILIDAD</div>
+          <div class="motivos-section">
+            <div class="motivos-list">
+              ${data.motivos.map((m, i) => `<div class="motivo-item"><strong>${i + 1}.</strong> ${m}</div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">PRÓXIMOS PASOS</div>
+          <div class="step-item"><strong>1.</strong> Adjuntar este informe en nota tipo Seguimiento CESUS</div>
+          <div class="step-item"><strong>2.</strong> Seleccionar categoría de resolución: <strong>IRREPARABLE</strong></div>
+          <div class="step-item"><strong>3.</strong> Cerrar con Resolución autom. Notificada</div>
+          <div class="step-item"><strong>4.</strong> Notificar a irreparable_MD@dxc.com con copia a compañeros</div>
+        </div>
+
+        <div class="footer">
+          <p>Informe generado el ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}</p>
+          <p style="margin-top: 5px; font-size: 11px;">Documento oficial - Procedimiento de Sanidad</p>
+        </div>
       </div>
     </body>
     </html>
@@ -505,6 +561,18 @@ Saludos`;
                 >
                   <AlertTriangle className="mr-2 h-4 w-4" />
                   Generar Informe
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (!validateForm()) return;
+                    handleOpenOutlook();
+                  }}
+                  variant="outline"
+                  className="rounded-xl"
+                >
+                  <Mail className="mr-2 h-4 w-4" />
+                  Generar Correo
                 </Button>
               </div>
             </form>

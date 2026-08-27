@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Zap, FileBarChart, AlertTriangle, X } from 'lucide-react';
-import { PageHeader } from '@/components/shared/PageHeader';
+import { FileBarChart, AlertTriangle, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 

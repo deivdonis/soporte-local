@@ -404,9 +404,14 @@ export function IrreparablesPage() {
   const handleGeneratePDF = () => {
     if (!validateForm()) return;
     const content = generatePDFContent(form);
+    const word = generateWordContent(form);
     setPdfContent(content);
-    setWordContent(generateWordContent(form));
+    setWordContent(word);
     setPreview(true);
+
+    const ticketCompleto = `IRREPARABLE_INC00000${form.ticketFaroNumeros}`;
+    downloadWord(word, ticketCompleto);
+    toast({ title: 'Plantilla generada', description: 'Se ha abierto la plantilla Word rellenada con los datos del formulario' });
   };
 
   const handleDownloadPDF = () => {
@@ -466,6 +471,16 @@ Saludos`;
         icon={AlertTriangle}
         title="Irreparables"
         description="Generar informe de equipo irreparable"
+        actions={
+          <a
+            href={`${import.meta.env.BASE_URL}plantillas/IRREPARABLES_PLANTILLA_ORIGINAL.doc`}
+            download
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-white"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            Descargar plantilla original en blanco
+          </a>
+        }
       />
 
       {!preview ? (

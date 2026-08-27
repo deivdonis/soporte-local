@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Download, Printer, X, Mail } from 'lucide-react';
+import { AlertTriangle, Download, Printer, X, Mail, FileText } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,18 @@ import { useToast } from '@/hooks/use-toast';
 
 interface IrreparableForm {
   ticketFaroNumeros: string;
+  centro: string;
+  direccion: string;
+  telefono: string;
+  contacto: string;
   tipoEquipo: string;
+  localRed: string;
   marca: string;
   modelo: string;
   numeroSerie: string;
+  sistemaOperativo: string;
+  numeroInventario: string;
+  memoriaRAM: string;
   sap: string;
   fechaBaja: string;
   motivos: string[];
@@ -218,20 +226,122 @@ function downloadPDF(htmlContent: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+function generateWordContent(data: IrreparableForm): string {
+  const ticketCompleto = `INC00000${data.ticketFaroNumeros}`;
+  const motivosTexto = data.motivos.filter((m) => m.trim()).join('. ') + '.';
+  return `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <meta charset="UTF-8">
+      <!--[if gte mso 9]>
+      <xml>
+        <w:WordDocument>
+          <w:View>Print</w:View>
+          <w:Zoom>100</w:Zoom>
+        </w:WordDocument>
+      </xml>
+      <![endif]-->
+      <style>
+        body { font-family: 'Calibri', Arial, sans-serif; font-size: 11pt; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 10px; }
+        td, th { border: 1px solid #000; padding: 4px 8px; vertical-align: top; }
+        .title-table td { background: #d9d9d9; text-align: center; font-weight: bold; font-size: 13pt; border: 1px solid #000; }
+        .label-cell { font-weight: bold; width: 25%; background: #f2f2f2; }
+        .section-label { font-weight: bold; margin-top: 14px; margin-bottom: 4px; }
+        p { margin: 4px 0; }
+      </style>
+    </head>
+    <body>
+      <table class="title-table">
+        <tr><td>INFORME TÉCNICO</td></tr>
+        <tr><td>BAJA DE MATERIAL</td></tr>
+      </table>
+
+      <p><strong>Ticket Faro:</strong> ${ticketCompleto}</p>
+
+      <p class="section-label">Datos del usuario</p>
+      <table>
+        <tr><td class="label-cell">Centro</td><td colspan="3">${data.centro}</td></tr>
+        <tr><td class="label-cell">Dirección</td><td colspan="3">${data.direccion}</td></tr>
+        <tr><td class="label-cell">Teléfono</td><td colspan="3">${data.telefono}</td></tr>
+        <tr><td class="label-cell">Contacto</td><td colspan="3">${data.contacto}</td></tr>
+      </table>
+
+      <p class="section-label">Datos del equipo</p>
+      <table>
+        <tr>
+          <td class="label-cell">Tipo</td><td>${data.tipoEquipo.toUpperCase()}</td>
+          <td class="label-cell">Local/Red</td><td>${data.localRed.toUpperCase()}</td>
+        </tr>
+        <tr>
+          <td class="label-cell">Marca</td><td>${data.marca.toUpperCase()}</td>
+          <td class="label-cell">Modelo</td><td>${data.modelo.toUpperCase()}</td>
+        </tr>
+        <tr>
+          <td class="label-cell">Nº de Serie</td><td>${data.numeroSerie}</td>
+          <td class="label-cell">Sist. Operativo</td><td>${data.sistemaOperativo}</td>
+        </tr>
+        <tr>
+          <td class="label-cell">Nº Inventario</td><td>${data.numeroInventario || data.sap || 'NO'}</td>
+          <td class="label-cell">Memoria RAM</td><td>${data.memoriaRAM}</td>
+        </tr>
+      </table>
+
+      <p class="section-label">Datos de la avería:</p>
+      <table>
+        <tr><td>${motivosTexto}</td></tr>
+      </table>
+
+      <p class="section-label">Motivo de la baja:</p>
+      <table>
+        <tr><td>${motivosTexto}</td></tr>
+      </table>
+
+      <br/>
+      <table style="width: 60%;">
+        <tr><td style="height: 60px;">Firmado:</td></tr>
+        <tr><td style="height: 20px;">Fecha: ${new Date(data.fechaBaja).toLocaleDateString('es-ES').split('/').join(' / ')}</td></tr>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
+function downloadWord(htmlContent: string, filename: string) {
+  const blob = new Blob(['﻿', htmlContent], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${filename}.doc`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export function IrreparablesPage() {
   const { toast } = useToast();
   const [form, setForm] = useState<IrreparableForm>({
     ticketFaroNumeros: '',
+    centro: '',
+    direccion: '',
+    telefono: '',
+    contacto: '',
     tipoEquipo: '',
+    localRed: 'LOCAL',
     marca: '',
     modelo: '',
     numeroSerie: '',
+    sistemaOperativo: '',
+    numeroInventario: '',
+    memoriaRAM: '',
     sap: '',
     fechaBaja: new Date().toISOString().split('T')[0],
     motivos: [''],
   });
   const [preview, setPreview] = useState(false);
   const [pdfContent, setPdfContent] = useState('');
+  const [wordContent, setWordContent] = useState('');
 
   const handleChange = (field: keyof Omit<IrreparableForm, 'motivos'>, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -295,6 +405,7 @@ export function IrreparablesPage() {
     if (!validateForm()) return;
     const content = generatePDFContent(form);
     setPdfContent(content);
+    setWordContent(generateWordContent(form));
     setPreview(true);
   };
 
@@ -302,6 +413,12 @@ export function IrreparablesPage() {
     const ticketCompleto = `IRREPARABLE_INC00000${form.ticketFaroNumeros}`;
     downloadPDF(pdfContent, ticketCompleto);
     toast({ title: 'Descargado', description: 'PDF descargado correctamente' });
+  };
+
+  const handleDownloadWord = () => {
+    const ticketCompleto = `IRREPARABLE_INC00000${form.ticketFaroNumeros}`;
+    downloadWord(wordContent, ticketCompleto);
+    toast({ title: 'Descargado', description: 'Documento Word descargado correctamente' });
   };
 
   const handlePrintPDF = () => {
@@ -355,6 +472,52 @@ Saludos`;
         <Card className="rounded-2xl border border-border bg-card">
           <CardContent className="p-6">
             <form className="space-y-6">
+              <div className="space-y-4 rounded-xl border border-border bg-background/30 p-4">
+                <h3 className="font-semibold text-white">Datos del usuario</h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="centro">Centro</Label>
+                    <Input
+                      id="centro"
+                      value={form.centro}
+                      onChange={(e) => handleChange('centro', e.target.value)}
+                      placeholder="ej: HOSPITAL INFANTA LEONOR"
+                      className="mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="direccion">Dirección</Label>
+                    <Input
+                      id="direccion"
+                      value={form.direccion}
+                      onChange={(e) => handleChange('direccion', e.target.value)}
+                      placeholder="ej: AVENIDA GRAN VIA DEL ESTE, 80"
+                      className="mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="telefono">Teléfono</Label>
+                    <Input
+                      id="telefono"
+                      value={form.telefono}
+                      onChange={(e) => handleChange('telefono', e.target.value)}
+                      placeholder="ej: 687471430"
+                      className="mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contacto">Contacto</Label>
+                    <Input
+                      id="contacto"
+                      value={form.contacto}
+                      onChange={(e) => handleChange('contacto', e.target.value)}
+                      placeholder="ej: DAVID FERNANDEZ"
+                      className="mt-1.5"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="ticketFaro">Nº Ticket FARO *</Label>
@@ -453,6 +616,52 @@ Saludos`;
                 </div>
 
                 <div>
+                  <Label htmlFor="localRed">Local/Red</Label>
+                  <select
+                    id="localRed"
+                    value={form.localRed}
+                    onChange={(e) => handleChange('localRed', e.target.value)}
+                    className="mt-1.5 h-11 w-full rounded-xl border border-border bg-background/50 px-4 text-sm text-white focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  >
+                    <option value="LOCAL" className="bg-card">LOCAL</option>
+                    <option value="RED" className="bg-card">RED</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label htmlFor="sistemaOperativo">Sistema Operativo</Label>
+                  <Input
+                    id="sistemaOperativo"
+                    value={form.sistemaOperativo}
+                    onChange={(e) => handleChange('sistemaOperativo', e.target.value)}
+                    placeholder="ej: Windows 10"
+                    className="mt-1.5"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="memoriaRAM">Memoria RAM</Label>
+                  <Input
+                    id="memoriaRAM"
+                    value={form.memoriaRAM}
+                    onChange={(e) => handleChange('memoriaRAM', e.target.value)}
+                    placeholder="ej: 8GB"
+                    className="mt-1.5"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="numeroInventario">Nº Inventario</Label>
+                  <Input
+                    id="numeroInventario"
+                    value={form.numeroInventario}
+                    onChange={(e) => handleChange('numeroInventario', e.target.value)}
+                    placeholder="ej: NO"
+                    className="mt-1.5"
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="sap">SAP</Label>
                   <Input
                     id="sap"
@@ -541,10 +750,18 @@ Saludos`;
                   onClick={() => {
                     setForm({
                       ticketFaroNumeros: '',
+                      centro: '',
+                      direccion: '',
+                      telefono: '',
+                      contacto: '',
                       tipoEquipo: '',
+                      localRed: 'LOCAL',
                       marca: '',
                       modelo: '',
                       numeroSerie: '',
+                      sistemaOperativo: '',
+                      numeroInventario: '',
+                      memoriaRAM: '',
                       sap: '',
                       fechaBaja: new Date().toISOString().split('T')[0],
                       motivos: [''],
@@ -603,6 +820,10 @@ Saludos`;
             <Button onClick={handleDownloadPDF} className="rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90">
               <Download className="mr-2 h-4 w-4" />
               Descargar PDF
+            </Button>
+            <Button onClick={handleDownloadWord} variant="outline" className="rounded-xl">
+              <FileText className="mr-2 h-4 w-4" />
+              Descargar Word
             </Button>
             <Button onClick={handlePrintPDF} variant="outline" className="rounded-xl">
               <Printer className="mr-2 h-4 w-4" />

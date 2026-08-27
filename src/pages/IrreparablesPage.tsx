@@ -258,7 +258,6 @@ export function IrreparablesPage() {
   };
 
   const generateEmailBody = (): string => {
-    const ticketCompleto = `INC00000${form.ticketFaroNumeros}`;
     return `Buenos días,
 
 Se adjunta informe de irreparable

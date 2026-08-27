@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Download, Printer, X } from 'lucide-react';
+import { AlertTriangle, Download, Printer, X, Mail } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,19 +9,45 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
 interface IrreparableForm {
-  ticketFaro: string;
+  ticketFaroNumeros: string;
   tipoEquipo: string;
   marca: string;
   modelo: string;
   numeroSerie: string;
   sap: string;
   fechaBaja: string;
-  motivo1: string;
-  motivo2: string;
-  motivo3: string;
+  motivos: string[];
 }
 
-const TIPOS_EQUIPO = ['Impresora', 'Pistola', 'Portátil', 'Monitor', 'Servidor', 'Telefono', 'Otro'];
+const TIPOS_EQUIPO = ['Impresora', 'Pistola', 'Portátil', 'Ordenador', 'Monitor', 'Servidor', 'Teléfono', 'Otro'];
+
+const MARCAS_COMUNES = {
+  'Impresora': ['Brother', 'HP', 'Canon', 'Xerox', 'Ricoh', 'Otros'],
+  'Pistola': ['Motorola', 'Otros'],
+  'Portátil': ['HP', 'Lenovo', 'Dell', 'Toshiba', 'Fujitsu', 'Otros'],
+  'Ordenador': ['HP', 'Lenovo', 'Dell', 'Otros'],
+  'Monitor': ['HP', 'Dell', 'LG', 'Samsung', 'Otros'],
+  'Servidor': ['HP', 'Dell', 'Lenovo', 'Otros'],
+  'Teléfono': ['Cisco', 'Otros'],
+  'Otro': ['Otros'],
+};
+
+const MODELOS_POR_MARCA: Record<string, string[]> = {
+  'Brother': ['5250DN', 'L8360CDW', 'HL-L2350DW', 'Otros'],
+  'HP': ['LaserJet Pro', 'OfficeJet', 'EliteBook', 'ProDesk', 'Otros'],
+  'Canon': ['imagePRUNNER', 'LBP', 'Otros'],
+  'Motorola': ['MC9090', 'MC9200', 'Otros'],
+  'Lenovo': ['ThinkPad', 'ThinkCentre', 'Otros'],
+  'Dell': ['Inspiron', 'Latitude', 'OptiPlex', 'Otros'],
+  'Toshiba': ['Satellite', 'Tecra', 'Otros'],
+  'Fujitsu': ['LifeBook', 'Otros'],
+  'Xerox': ['VersaLink', 'AltaLink', 'Otros'],
+  'Ricoh': ['MP', 'Otros'],
+  'LG': ['Otros'],
+  'Samsung': ['Otros'],
+  'Cisco': ['8851', 'Otros'],
+};
+
 const MOTIVOS = [
   'Obsolescencia',
   'Fusor averiado',
@@ -30,10 +56,10 @@ const MOTIVOS = [
   'Teclado defectuoso',
   'Batería muerta',
   'Placa base dañada',
-  'Otro',
 ];
 
 function generatePDFContent(data: IrreparableForm): string {
+  const ticketCompleto = `INC00000${data.ticketFaroNumeros}`;
   return `
     <!DOCTYPE html>
     <html>
@@ -65,7 +91,7 @@ function generatePDFContent(data: IrreparableForm): string {
         <div class="section-title">DATOS DEL INCIDENTE</div>
         <div class="field">
           <div class="field-label">Nº Ticket FARO:</div>
-          <div class="field-value">${data.ticketFaro}</div>
+          <div class="field-value">${ticketCompleto}</div>
         </div>
         <div class="field">
           <div class="field-label">Fecha de Baja:</div>
@@ -98,11 +124,9 @@ function generatePDFContent(data: IrreparableForm): string {
       </div>
 
       <div class="section">
-        <div class="section-title">MOTIVO DE IRREPARABILIDAD (3 PUNTOS)</div>
+        <div class="section-title">MOTIVO DE IRREPARABILIDAD</div>
         <div class="motivos">
-          <div class="motivo-item"><strong>1.</strong> ${data.motivo1}</div>
-          <div class="motivo-item"><strong>2.</strong> ${data.motivo2}</div>
-          <div class="motivo-item"><strong>3.</strong> ${data.motivo3}</div>
+          ${data.motivos.map((m, i) => `<div class="motivo-item"><strong>${i + 1}.</strong> ${m}</div>`).join('')}
         </div>
       </div>
 
@@ -141,34 +165,58 @@ function downloadPDF(htmlContent: string, filename: string) {
 export function IrreparablesPage() {
   const { toast } = useToast();
   const [form, setForm] = useState<IrreparableForm>({
-    ticketFaro: '',
+    ticketFaroNumeros: '',
     tipoEquipo: '',
     marca: '',
     modelo: '',
     numeroSerie: '',
     sap: '',
     fechaBaja: new Date().toISOString().split('T')[0],
-    motivo1: '',
-    motivo2: '',
-    motivo3: '',
+    motivos: [''],
   });
   const [preview, setPreview] = useState(false);
   const [pdfContent, setPdfContent] = useState('');
 
-  const handleChange = (field: keyof IrreparableForm, value: string) => {
+  const handleChange = (field: keyof Omit<IrreparableForm, 'motivos'>, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleMotivoChange = (index: number, value: string) => {
+    const newMotivos = [...form.motivos];
+    newMotivos[index] = value;
+    setForm((prev) => ({ ...prev, motivos: newMotivos }));
+  };
+
+  const handleAddMotivo = () => {
+    setForm((prev) => ({ ...prev, motivos: [...prev.motivos, ''] }));
+  };
+
+  const handleRemoveMotivo = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      motivos: prev.motivos.filter((_, i) => i !== index),
+    }));
+  };
+
+  const getMarcasDisponibles = (): string[] => {
+    return (MARCAS_COMUNES[form.tipoEquipo as keyof typeof MARCAS_COMUNES] || ['Otros']) as string[];
+  };
+
+  const getModelosDisponibles = (): string[] => {
+    if (form.marca === 'Otros' || !form.marca) return ['Otros'];
+    return (MODELOS_POR_MARCA[form.marca] || ['Otros']) as string[];
+  };
+
   const validateForm = (): boolean => {
-    if (!form.ticketFaro.trim()) {
-      toast({ title: 'Error', description: 'Nº Ticket FARO es obligatorio' });
+    if (!form.ticketFaroNumeros.trim()) {
+      toast({ title: 'Error', description: 'Números de ticket FARO son obligatorios' });
       return false;
     }
     if (!form.tipoEquipo) {
       toast({ title: 'Error', description: 'Tipo de equipo es obligatorio' });
       return false;
     }
-    if (!form.marca.trim()) {
+    if (!form.marca || form.marca === 'Otros' && !form.marca) {
       toast({ title: 'Error', description: 'Marca es obligatoria' });
       return false;
     }
@@ -180,8 +228,8 @@ export function IrreparablesPage() {
       toast({ title: 'Error', description: 'Número de Serie es obligatorio' });
       return false;
     }
-    if (!form.motivo1 || !form.motivo2 || !form.motivo3) {
-      toast({ title: 'Error', description: 'Los 3 puntos de motivo son obligatorios' });
+    if (!form.motivos[0]?.trim()) {
+      toast({ title: 'Error', description: 'Al menos 1 motivo es obligatorio' });
       return false;
     }
     return true;
@@ -195,7 +243,8 @@ export function IrreparablesPage() {
   };
 
   const handleDownloadPDF = () => {
-    downloadPDF(pdfContent, `IRREPARABLE_${form.ticketFaro}`);
+    const ticketCompleto = `IRREPARABLE_INC00000${form.ticketFaroNumeros}`;
+    downloadPDF(pdfContent, ticketCompleto);
     toast({ title: 'Descargado', description: 'PDF descargado correctamente' });
   };
 
@@ -209,6 +258,7 @@ export function IrreparablesPage() {
   };
 
   const generateEmailBody = (): string => {
+    const ticketCompleto = `INC00000${form.ticketFaroNumeros}`;
     return `Buenos días,
 
 Se adjunta informe de irreparable
@@ -221,11 +271,17 @@ Número de Serie: ${form.numeroSerie}
 SAP: ${form.sap}
 
 Motivo de irreparabilidad:
-1. ${form.motivo1}
-2. ${form.motivo2}
-3. ${form.motivo3}
+${form.motivos.map((m, i) => `${i + 1}. ${m}`).join('\n')}
 
 Saludos`;
+  };
+
+  const handleOpenOutlook = () => {
+    const emailBody = generateEmailBody();
+    const subject = encodeURIComponent(`IRREPARABLE INC00000${form.ticketFaroNumeros}`);
+    const body = encodeURIComponent(emailBody);
+    const mailtoLink = `mailto:irreparable_MD@dxc.com?cc=david.fernandez4@dxc.com,l.guiaguazocabrera@dxc.com,andrei.popa4@dxc.com,enrique.camacho.valverde@dxc.com&subject=${subject}&body=${body}`;
+    window.location.href = mailtoLink;
   };
 
   return (
@@ -247,13 +303,17 @@ Saludos`;
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="ticketFaro">Nº Ticket FARO *</Label>
-                  <Input
-                    id="ticketFaro"
-                    value={form.ticketFaro}
-                    onChange={(e) => handleChange('ticketFaro', e.target.value)}
-                    placeholder="ej: INC000002059839"
-                    className="mt-1.5"
-                  />
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="rounded-lg border border-border bg-background/50 px-3 py-2.5 text-sm font-medium text-muted-foreground">INC00000</span>
+                    <Input
+                      id="ticketFaro"
+                      value={form.ticketFaroNumeros}
+                      onChange={(e) => handleChange('ticketFaroNumeros', e.target.value.replace(/\D/g, ''))}
+                      placeholder="ej: 2059839"
+                      className="flex-1"
+                      maxLength={7}
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -261,7 +321,11 @@ Saludos`;
                   <select
                     id="tipoEquipo"
                     value={form.tipoEquipo}
-                    onChange={(e) => handleChange('tipoEquipo', e.target.value)}
+                    onChange={(e) => {
+                      handleChange('tipoEquipo', e.target.value);
+                      handleChange('marca', '');
+                      handleChange('modelo', '');
+                    }}
                     className="mt-1.5 h-11 w-full rounded-xl border border-border bg-background/50 px-4 text-sm text-white focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
                   >
                     <option value="">Seleccionar tipo...</option>
@@ -275,24 +339,51 @@ Saludos`;
 
                 <div>
                   <Label htmlFor="marca">Marca *</Label>
-                  <Input
+                  <select
                     id="marca"
                     value={form.marca}
-                    onChange={(e) => handleChange('marca', e.target.value)}
-                    placeholder="ej: Brother"
-                    className="mt-1.5"
-                  />
+                    onChange={(e) => {
+                      handleChange('marca', e.target.value);
+                      handleChange('modelo', '');
+                    }}
+                    className="mt-1.5 h-11 w-full rounded-xl border border-border bg-background/50 px-4 text-sm text-white focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                    disabled={!form.tipoEquipo}
+                  >
+                    <option value="">Seleccionar marca...</option>
+                    {getMarcasDisponibles().map((marca) => (
+                      <option key={marca} value={marca} className="bg-card">
+                        {marca}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
                   <Label htmlFor="modelo">Modelo *</Label>
-                  <Input
-                    id="modelo"
-                    value={form.modelo}
-                    onChange={(e) => handleChange('modelo', e.target.value)}
-                    placeholder="ej: 5250DN"
-                    className="mt-1.5"
-                  />
+                  {form.marca === 'Otros' ? (
+                    <Input
+                      id="modelo"
+                      value={form.modelo}
+                      onChange={(e) => handleChange('modelo', e.target.value)}
+                      placeholder="Escribir modelo..."
+                      className="mt-1.5"
+                    />
+                  ) : (
+                    <select
+                      id="modelo"
+                      value={form.modelo}
+                      onChange={(e) => handleChange('modelo', e.target.value)}
+                      className="mt-1.5 h-11 w-full rounded-xl border border-border bg-background/50 px-4 text-sm text-white focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                      disabled={!form.marca}
+                    >
+                      <option value="">Seleccionar modelo...</option>
+                      {getModelosDisponibles().map((modelo) => (
+                        <option key={modelo} value={modelo} className="bg-card">
+                          {modelo}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 <div>
@@ -330,50 +421,78 @@ Saludos`;
               </div>
 
               <div className="space-y-4 rounded-xl border border-border bg-background/30 p-4">
-                <h3 className="font-semibold text-white">Motivo de Irreparabilidad (3 puntos obligatorios)</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-white">Motivo *</h3>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddMotivo}
+                    className="h-8 text-xs"
+                  >
+                    + Añadir motivo
+                  </Button>
+                </div>
 
-                {[
-                  { key: 'motivo1', label: 'Punto 1' },
-                  { key: 'motivo2', label: 'Punto 2' },
-                  { key: 'motivo3', label: 'Punto 3' },
-                ].map(({ key, label }) => (
-                  <div key={key}>
-                    <Label htmlFor={key}>
-                      {label} *
-                    </Label>
-                    <select
-                      id={key}
-                      value={form[key as keyof IrreparableForm]}
-                      onChange={(e) => handleChange(key as keyof IrreparableForm, e.target.value)}
-                      className="mt-1.5 h-11 w-full rounded-xl border border-border bg-background/50 px-4 text-sm text-white focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
-                    >
-                      <option value="">Seleccionar motivo...</option>
-                      {MOTIVOS.map((motivo) => (
-                        <option key={motivo} value={motivo} className="bg-card">
-                          {motivo}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ))}
+                <div className="space-y-3">
+                  {form.motivos.map((motivo, index) => (
+                    <div key={index} className="flex gap-2">
+                      <select
+                        value={motivo}
+                        onChange={(e) => handleMotivoChange(index, e.target.value)}
+                        className="flex-1 rounded-xl border border-border bg-background/50 px-4 py-2.5 text-sm text-white focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                      >
+                        <option value="">Seleccionar motivo...</option>
+                        {MOTIVOS.map((m) => (
+                          <option key={m} value={m} className="bg-card">
+                            {m}
+                          </option>
+                        ))}
+                        <option value="" disabled className="bg-card">---</option>
+                        <option value="Escribir a mano" className="bg-card italic">Escribir a mano...</option>
+                      </select>
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveMotivo(index)}
+                          className="flex h-11 w-11 items-center justify-center rounded-xl border border-border text-muted-foreground hover:border-red-500/30 hover:text-red-400"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {form.motivos.some((m) => m === 'Escribir a mano') && (
+                    <Input
+                      type="text"
+                      placeholder="Escribe el motivo personalizado..."
+                      className="mt-2"
+                      onBlur={(e) => {
+                        const text = e.target.value;
+                        if (text.trim()) {
+                          const idx = form.motivos.findIndex((m) => m === 'Escribir a mano');
+                          if (idx !== -1) handleMotivoChange(idx, text);
+                        }
+                      }}
+                    />
+                  )}
+                </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex flex-wrap gap-3 pt-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => {
                     setForm({
-                      ticketFaro: '',
+                      ticketFaroNumeros: '',
                       tipoEquipo: '',
                       marca: '',
                       modelo: '',
                       numeroSerie: '',
                       sap: '',
                       fechaBaja: new Date().toISOString().split('T')[0],
-                      motivo1: '',
-                      motivo2: '',
-                      motivo3: '',
+                      motivos: [''],
                     });
                   }}
                   className="rounded-xl"
@@ -423,17 +542,12 @@ Saludos`;
               Imprimir
             </Button>
             <Button
-              onClick={() => {
-                const emailBody = generateEmailBody();
-                const subject = encodeURIComponent(`IRREPARABLE ${form.ticketFaro}`);
-                const body = encodeURIComponent(emailBody);
-                const mailtoLink = `mailto:irreparable_MD@dxc.com?cc=david.fernandez4@dxc.com,l.guiaguazocabrera@dxc.com,andrei.popa4@dxc.com,enrique.camacho.valverde@dxc.com&subject=${subject}&body=${body}`;
-                window.location.href = mailtoLink;
-              }}
+              onClick={handleOpenOutlook}
               variant="outline"
               className="rounded-xl"
             >
-              Enviar por Correo
+              <Mail className="mr-2 h-4 w-4" />
+              Abrir Outlook
             </Button>
           </div>
 
@@ -444,7 +558,7 @@ Saludos`;
                 <li>Adjuntar este informe en nota tipo Seguimiento CESUS</li>
                 <li>Seleccionar Categoría de resolución: <strong>IRREPARABLE</strong></li>
                 <li>Cerrar con Resolución autom. Notificada</li>
-                <li>Enviar correo a irreparable_MD@dxc.com con copia a compañeros</li>
+                <li>Se enviará correo a irreparable_MD@dxc.com con copia a compañeros</li>
               </ol>
             </CardContent>
           </Card>

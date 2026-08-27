@@ -15,7 +15,7 @@ export const torreRotation: GuardiaPerson[] = [
 ];
 
 export const hospitalRotation: GuardiaPerson[] = [
-  { code: 'DFER', name: 'David', full: 'David Fernández', ...swatch('#fde047') },
+  { code: 'DFER', name: 'David', full: 'David Fernández', ...swatch('#FFFF00') },
   { code: 'MPAR', name: 'María', full: 'María Parra', ...swatch('#10b981') },
   { code: 'SZAM', name: 'Sergio', full: 'Sergio Zamora', ...swatch('#a855f7') },
   { code: 'OFRA', name: 'Óscar', full: 'Óscar Fraile', ...swatch('#f97316') },

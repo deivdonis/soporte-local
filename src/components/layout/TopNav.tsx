@@ -8,7 +8,7 @@ import {
   BookOpen,
   Network,
   Lightbulb,
-  FileBarChart,
+  Zap,
   Settings,
   Search,
   Bell,
@@ -39,7 +39,7 @@ const mainNav = [
   { to: '/manuales', label: 'Manuales', icon: BookOpen },
   { to: '/redes', label: 'Redes', icon: Network },
   { to: '/sugerencias', label: 'Sugerencias', icon: Lightbulb },
-  { to: '/informe', label: 'Informe', icon: FileBarChart },
+  { to: '/procedimientos', label: 'Procedimientos', icon: Zap },
 ];
 
 const notifications = [

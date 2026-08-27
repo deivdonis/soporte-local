@@ -84,8 +84,13 @@ export function DeviceDetailPage() {
     if (t.transfer) shortcutEntries.push(`Transferencia: ${t.transfer}`);
   }
 
+  const MANUAL_TIPOS_EXCLUIDOS = ['Seguridad', 'Configuración', 'Mantenimiento', 'Procedimientos'];
+  const manualesFiltrados = device.manuals.filter(
+    (m) => !MANUAL_TIPOS_EXCLUIDOS.some((tipo) => m.type?.includes(tipo))
+  );
+
   const firstDriver = device.drivers[0];
-  const firstManual = device.manuals[0];
+  const firstManual = manualesFiltrados[0];
 
   return (
     <div>
@@ -148,23 +153,48 @@ export function DeviceDetailPage() {
           </dl>
         </motion.div>
 
-        {device.factoryReset && (
+        {device.bios && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
             className="rounded-2xl border border-border bg-card p-6"
           >
-            <h2 className="mb-4 text-base font-bold text-white">Restablecimiento de fábrica</h2>
+            <h2 className="mb-4 text-base font-bold text-white">ACCESO A LA BIOS</h2>
             <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold text-primary">Por software</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{device.factoryReset.software}</p>
+              <div className="rounded-lg border-l-4 border-yellow-500 bg-yellow-500/10 p-3">
+                <h3 className="text-sm font-semibold text-yellow-400">Acceso a la BIOS</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {device.bios.key || 'Ver instrucciones específicas del modelo'}
+                </p>
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-primary">Por botones</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{device.factoryReset.buttons}</p>
-              </div>
+              {device.bios.bootMenu && (
+                <div>
+                  <h3 className="text-sm font-semibold text-primary">Menú de arranque</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{device.bios.bootMenu}</p>
+                </div>
+              )}
+              {device.bios.recovery && (
+                <div>
+                  <h3 className="text-sm font-semibold text-primary">Recuperación</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{device.bios.recovery}</p>
+                </div>
+              )}
+              {device.factoryReset && (
+                <>
+                  <div className="border-t border-border pt-4">
+                    <h3 className="text-sm font-semibold text-primary">Restablecimiento de fábrica</h3>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground">Por software</h4>
+                    <p className="mt-1 text-sm text-muted-foreground">{device.factoryReset.software}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground">Por botones</h4>
+                    <p className="mt-1 text-sm text-muted-foreground">{device.factoryReset.buttons}</p>
+                  </div>
+                </>
+              )}
             </div>
           </motion.div>
         )}

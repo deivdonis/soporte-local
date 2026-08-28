@@ -42,7 +42,7 @@ const quickAccess = [
     classes: 'bg-pink-500/10 text-pink-400 ring-pink-500/20',
   },
   {
-    label: 'Trucos Windows',
+    label: 'Windows',
     to: '/trucos-windows',
     icon: Wrench,
     classes: 'bg-cyan-500/10 text-cyan-400 ring-cyan-500/20',
@@ -102,12 +102,28 @@ function TorreTurnosList({ legend }: { legend: Person[] }) {
     return list;
   }, [today.getFullYear(), today.getMonth()]);
 
+  const turnoActual = getTorreGuardia(today);
+  const esAgostoActual = today.getMonth() === 7;
+
   return (
     <Card className="rounded-2xl border border-border bg-card">
-      <CardHeader className="pb-2">
+      <CardHeader className="flex flex-col gap-4 pb-2">
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <CalendarDays className="h-4 w-4 text-primary" />
           Guardia Virgen de la Torre
+        </div>
+
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Le toca este mes a</p>
+          {esAgostoActual ? (
+            <p className="text-2xl font-extrabold uppercase text-muted-foreground">
+              Nadie (continúa en septiembre)
+            </p>
+          ) : (
+            <p className="text-2xl font-extrabold uppercase" style={{ color: turnoActual.color }}>
+              {turnoActual.full}
+            </p>
+          )}
         </div>
       </CardHeader>
 
@@ -303,10 +319,11 @@ export function HomePage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
+              className="aspect-square"
             >
               <Link
                 to={item.to}
-                className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 text-center transition-transform hover:scale-[1.02] hover:border-primary/30 hover:bg-accent/30"
+                className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-card p-4 text-center transition-transform hover:scale-[1.02] hover:border-primary/30 hover:bg-accent/30"
               >
                 <div className={cn('flex h-12 w-12 items-center justify-center rounded-xl ring-1', item.classes)}>
                   <item.icon className="h-6 w-6" />

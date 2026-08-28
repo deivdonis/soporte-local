@@ -40,14 +40,14 @@ export function TrucoCategoriaPage() {
 
       <PageHeader icon={Icon} title={categoria.title} description={categoria.description} />
 
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         {categoria.trucos.map((truco, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: Math.min(i * 0.02, 0.4) }}
-            className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4"
+            className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3"
           >
             <div className="min-w-0 flex-1">
               {truco.command && (

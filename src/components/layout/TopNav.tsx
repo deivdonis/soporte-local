@@ -7,6 +7,7 @@ import {
   MonitorSmartphone,
   Network,
   Zap,
+  Wrench,
   Settings,
   Search,
   Bell,
@@ -34,6 +35,7 @@ const mainNav = [
   { to: '/', label: 'Home', icon: Home },
   { to: '/dispositivos', label: 'Dispositivos', icon: MonitorSmartphone },
   { to: '/redes', label: 'Redes', icon: Network },
+  { to: '/trucos-windows', label: 'Trucos Windows', icon: Wrench },
   { to: '/procedimientos', label: 'Procedimientos', icon: Zap },
 ];
 

@@ -8,6 +8,7 @@ import { HomePage } from '@/pages/HomePage';
 import { DispositivosPage, CategoryPage } from '@/pages/DispositivosPage';
 import { DeviceDetailPage } from '@/pages/DeviceDetailPage';
 import { RedesPage } from '@/pages/RedesPage';
+import { TrucosWindowsPage } from '@/pages/TrucosWindowsPage';
 import { InformePage } from '@/pages/InformePage';
 import { ProcedimientosPage } from '@/pages/ProcedimientosPage';
 import { IrreparablesPage } from '@/pages/IrreparablesPage';
@@ -41,6 +42,7 @@ function App() {
             <Route path="/dispositivos/:category" element={<CategoryPageWrapper />} />
             <Route path="/dispositivos/modelo/:id" element={<DeviceDetailPage />} />
             <Route path="/redes" element={<RedesPage />} />
+            <Route path="/trucos-windows" element={<TrucosWindowsPage />} />
             <Route path="/procedimientos" element={<ProcedimientosPage />} />
             <Route path="/procedimientos/irreparables" element={<IrreparablesPage />} />
             <Route path="/informe" element={<InformePage />} />

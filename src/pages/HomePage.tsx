@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Zap,
+  Wrench,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -39,6 +40,12 @@ const quickAccess = [
     to: '/procedimientos',
     icon: Zap,
     classes: 'bg-pink-500/10 text-pink-400 ring-pink-500/20',
+  },
+  {
+    label: 'Trucos Windows',
+    to: '/trucos-windows',
+    icon: Wrench,
+    classes: 'bg-cyan-500/10 text-cyan-400 ring-cyan-500/20',
   },
 ];
 
@@ -75,6 +82,76 @@ interface Person {
   color: string;
   bg: string;
   border: string;
+}
+
+function TorreTurnosList({ legend }: { legend: Person[] }) {
+  const today = new Date();
+
+  const turnos = useMemo(() => {
+    const list: { key: string; label: string; person: Person; sinTurno: boolean }[] = [];
+    for (let i = -2; i <= 9; i++) {
+      const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
+      const person = getTorreGuardia(date);
+      list.push({
+        key: `${date.getFullYear()}-${date.getMonth()}`,
+        label: monthLabel(date),
+        person,
+        sinTurno: date.getMonth() === 7,
+      });
+    }
+    return list;
+  }, [today.getFullYear(), today.getMonth()]);
+
+  return (
+    <Card className="rounded-2xl border border-border bg-card">
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <CalendarDays className="h-4 w-4 text-primary" />
+          Guardia Virgen de la Torre
+        </div>
+      </CardHeader>
+
+      <CardContent className="pt-2">
+        <div className="flex flex-col divide-y divide-border">
+          {turnos.map((t) => {
+            const isCurrent = t.label === monthLabel(today);
+            return (
+              <div
+                key={t.key}
+                className={cn(
+                  'flex items-center justify-between gap-3 py-3',
+                  isCurrent && 'rounded-xl bg-accent/30 px-3'
+                )}
+              >
+                <span className={cn('text-sm', isCurrent ? 'font-bold text-white' : 'text-muted-foreground')}>
+                  {t.label}
+                </span>
+                {t.sinTurno ? (
+                  <span className="text-xs italic text-muted-foreground">Sin turno (continúa en septiembre)</span>
+                ) : (
+                  <span
+                    className="rounded-full px-3 py-1 text-xs font-bold uppercase"
+                    style={{ backgroundColor: t.person.bg, color: t.person.color, border: `1px solid ${t.person.border}` }}
+                  >
+                    {t.person.full}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
+          {legend.map((p) => (
+            <div key={p.code} className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: p.color }} />
+              {p.full}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 function GuardiaCalendar({
@@ -206,11 +283,9 @@ function GuardiaCalendar({
 
 export function HomePage() {
   const [hospitalViewDate, setHospitalViewDate] = useState(() => new Date());
-  const [torreViewDate, setTorreViewDate] = useState(() => new Date());
 
   const today = new Date();
   const currentHospitalGuardia = getHospitalGuardia(today);
-  const currentTorreGuardia = getTorreGuardia(torreViewDate);
 
   return (
     <motion.div
@@ -221,7 +296,7 @@ export function HomePage() {
     >
       <div>
         <h1 className="mb-4 text-xl font-bold text-white">Acceso rápido</h1>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {quickAccess.map((item, i) => (
             <motion.div
               key={item.to}
@@ -271,17 +346,7 @@ export function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
         >
-          <GuardiaCalendar
-            title="Guardia Virgen de la Torre"
-            headerLabel="Le toca este mes a"
-            headerValue={currentTorreGuardia.full}
-            headerColor={currentTorreGuardia.color}
-            viewDate={torreViewDate}
-            onPrev={() => setTorreViewDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))}
-            onNext={() => setTorreViewDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))}
-            getPerson={getTorreGuardia}
-            legend={torreRotation}
-          />
+          <TorreTurnosList legend={torreRotation} />
         </motion.div>
       </div>
     </motion.div>

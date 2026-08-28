@@ -5,9 +5,7 @@ import {
   Shield,
   Home,
   MonitorSmartphone,
-  BookOpen,
   Network,
-  Lightbulb,
   Zap,
   Settings,
   Search,
@@ -22,7 +20,6 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { devices } from '@/data/devices';
-import { manuals } from '@/data/manuals';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -36,16 +33,12 @@ import {
 const mainNav = [
   { to: '/', label: 'Home', icon: Home },
   { to: '/dispositivos', label: 'Dispositivos', icon: MonitorSmartphone },
-  { to: '/manuales', label: 'Manuales', icon: BookOpen },
   { to: '/redes', label: 'Redes', icon: Network },
-  { to: '/sugerencias', label: 'Sugerencias', icon: Lightbulb },
   { to: '/procedimientos', label: 'Procedimientos', icon: Zap },
 ];
 
 const notifications = [
-  { id: 1, title: 'Nueva sugerencia de Fernando Rubio', time: 'Hace 2 h', type: 'info' as const },
-  { id: 2, title: 'Sugerencia aprobada: Sistema de tickets', time: 'Hace 5 h', type: 'success' as const },
-  { id: 3, title: 'Documentación actualizada', time: 'Hace 1 día', type: 'info' as const },
+  { id: 1, title: 'Documentación actualizada', time: 'Hace 1 día', type: 'info' as const },
 ];
 
 interface SearchResult {
@@ -104,17 +97,7 @@ export function TopNav({
         icon: MonitorSmartphone,
       }));
 
-    const manualResults: SearchResult[] = manuals
-      .filter((m) => m.title.toLowerCase().includes(q))
-      .map((m) => ({
-        id: `manual-${m.id}`,
-        label: m.title,
-        category: m.category,
-        to: `/manuales/${m.id}`,
-        icon: BookOpen,
-      }));
-
-    return [...deviceResults, ...manualResults].slice(0, 6);
+    return deviceResults.slice(0, 6);
   }, [query]);
 
   useEffect(() => {
@@ -195,7 +178,7 @@ export function TopNav({
                   setSearchOpen(true);
                 }}
                 onFocus={() => setSearchOpen(true)}
-                placeholder="Buscar dispositivos, manuales..."
+                placeholder="Buscar dispositivos..."
                 className="h-10 w-64 rounded-xl border border-border bg-card py-2 pl-9 pr-3 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
 

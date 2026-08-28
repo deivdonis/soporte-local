@@ -7,6 +7,7 @@ import {
   Printer,
   Wifi,
   Copy,
+  BookOpen,
 } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +27,12 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui/table';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 import {
   networkDevices,
@@ -35,6 +42,9 @@ import {
   type NetworkDevice,
   type NetworkCommand,
 } from '@/data/networks';
+import { manuals } from '@/data/manuals';
+
+const redesManuals = manuals.filter((m) => m.category === 'Redes');
 
 const typeIconMap: Record<NetworkDevice['type'], React.ComponentType<{ className?: string }>> = {
   switch: Network,
@@ -108,6 +118,7 @@ export function RedesPage() {
           <TabsTrigger value="vlans">VLANs</TabsTrigger>
           <TabsTrigger value="ip">Direccionamiento IP</TabsTrigger>
           <TabsTrigger value="comandos">Comandos</TabsTrigger>
+          <TabsTrigger value="manuales">Manuales</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dispositivos">
@@ -240,6 +251,83 @@ export function RedesPage() {
               <h3 className="mb-4 text-base font-bold text-white">Windows</h3>
               <CommandsList commands={networkCommands.filter((c) => c.category === 'windows')} />
             </motion.div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="manuales">
+          <div className="flex flex-col gap-4">
+            {redesManuals.map((manual, i) => (
+              <motion.div
+                key={manual.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+                className="rounded-2xl border border-border bg-card p-6"
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="flex items-center gap-2 text-base font-bold text-white">
+                      <BookOpen className="h-4 w-4 text-primary" />
+                      {manual.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{manual.description}</p>
+                  </div>
+                </div>
+
+                <div className="mb-3 flex flex-wrap gap-1.5">
+                  {manual.tags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+
+                {manual.steps && (
+                  <Accordion type="single" collapsible>
+                    {manual.steps.map((step, si) => (
+                      <AccordionItem key={si} value={`${manual.id}-step-${si}`}>
+                        <AccordionTrigger className="text-white">{step.title}</AccordionTrigger>
+                        <AccordionContent>
+                          <ol className="space-y-2 pl-1">
+                            {step.content.map((line, li) => (
+                              <li key={li} className="text-sm text-muted-foreground">
+                                {li + 1}. {line}
+                              </li>
+                            ))}
+                          </ol>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                )}
+
+                {manual.notes && manual.notes.length > 0 && (
+                  <div className="mt-4 space-y-1.5 rounded-xl border-l-4 border-primary bg-primary/5 p-3">
+                    {manual.notes.map((note, ni) => (
+                      <p key={ni} className="text-xs text-muted-foreground">
+                        {note}
+                      </p>
+                    ))}
+                  </div>
+                )}
+
+                {manual.links && manual.links.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {manual.links.map((link) => (
+                      <a
+                        key={link.url}
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-primary hover:underline"
+                      >
+                        {link.name}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            ))}
           </div>
         </TabsContent>
       </Tabs>

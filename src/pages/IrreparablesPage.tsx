@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { AlertTriangle, FileDown, Mail, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, FileDown, Mail, CheckCircle2, Copy } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,12 @@ const COPIA = [
   'enrique.camacho.valverde@dxc.com',
 ].join(',');
 
+const COMENTARIO_2PRE = `#:2PRE Máquina irreparable según procedimiento.
+MARCA:
+MODELO:
+NUMERO DE SERIE:
+SAP:`;
+
 const CUERPO_CORREO = `Buenos días,
 
 Máquina irreparable según procedimiento.
@@ -26,7 +32,13 @@ Nº sap:
 
 Saludos`;
 
-const PASOS_MANUAL = [
+interface PasoManual {
+  title: string;
+  description: string;
+  copyText?: string;
+}
+
+const PASOS_MANUAL: PasoManual[] = [
   {
     title: 'Realizar el informe de irreparabilidad "IRREPARABLES PLANTILLA NUEVA(IRREPARABLE INCXXXXXXX)"',
     description: `en PDF con los 3 puntos obligatorios:
@@ -60,13 +72,8 @@ Nº sap: NO`,
   },
   {
     title: 'Cerramos con Resolución autom. Notificada',
-    description: `con el comentario:
-
-#:2PRE Máquina irreparable según procedimiento.
-MARCA:
-MODELO:
-NUMERO DE SERIE:
-SAP:`,
+    description: 'con el comentario:',
+    copyText: COMENTARIO_2PRE,
   },
   {
     title: 'Enviar un correo a IRREPARABLE_MD@DXC.COM con:',
@@ -112,6 +119,15 @@ export function IrreparablesPage() {
     window.location.href = mailtoLink;
   };
 
+  const handleCopiarComentario = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: 'Copiado', description: 'Comentario copiado al portapapeles' });
+    } catch {
+      toast({ title: 'Error', description: 'No se ha podido copiar al portapapeles' });
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -153,9 +169,24 @@ export function IrreparablesPage() {
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                   {i + 1}
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-semibold text-white">{paso.title}</h3>
                   <p className="mt-1 whitespace-pre-line text-sm text-muted-foreground">{paso.description}</p>
+                  {paso.copyText && (
+                    <div className="mt-2 flex items-start justify-between gap-3 rounded-xl border border-border bg-background/40 p-3">
+                      <pre className="whitespace-pre-wrap font-sans text-sm text-white">{paso.copyText}</pre>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCopiarComentario(paso.copyText!)}
+                        className="shrink-0 rounded-lg"
+                      >
+                        <Copy className="mr-1.5 h-3.5 w-3.5" />
+                        Copiar
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

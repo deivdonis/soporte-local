@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   MonitorSmartphone,
-  BookOpen,
   Network,
-  Lightbulb,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -31,12 +29,6 @@ const quickAccess = [
     classes: 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/20',
   },
   {
-    label: 'Manuales',
-    to: '/manuales',
-    icon: BookOpen,
-    classes: 'bg-amber-500/10 text-amber-400 ring-amber-500/20',
-  },
-  {
     label: 'Redes',
     to: '/redes',
     icon: Network,
@@ -47,12 +39,6 @@ const quickAccess = [
     to: '/procedimientos',
     icon: Zap,
     classes: 'bg-pink-500/10 text-pink-400 ring-pink-500/20',
-  },
-  {
-    label: 'Sugerencias',
-    to: '/sugerencias',
-    icon: Lightbulb,
-    classes: 'bg-yellow-500/10 text-yellow-400 ring-yellow-500/20',
   },
 ];
 

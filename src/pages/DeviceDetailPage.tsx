@@ -7,6 +7,8 @@ import {
   BookOpen,
   CheckCircle2,
   KeyRound,
+  AlertTriangle,
+  FileDown,
 } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Badge } from '@/components/ui/badge';
@@ -56,13 +58,10 @@ export function DeviceDetailPage() {
 
   if (device.zebraInfo) {
     const z = device.zebraInfo;
-    (z.calibration ?? []).forEach((c) => shortcutEntries.push(`Calibración: ${c}`));
     if (z.feed) shortcutEntries.push(`Avance: ${z.feed}`);
     if (z.pause) shortcutEntries.push(`Pausa: ${z.pause}`);
     if (z.sensor) shortcutEntries.push(`Sensor: ${z.sensor}`);
     if (z.configLabel) shortcutEntries.push(`Etiqueta de configuración: ${z.configLabel}`);
-    (z.reset ?? []).forEach((r) => shortcutEntries.push(`Reset: ${r}`));
-    (z.combinations ?? []).forEach((c) => shortcutEntries.push(`Combinación: ${c}`));
   }
 
   if (device.monitorInfo) {
@@ -91,6 +90,8 @@ export function DeviceDetailPage() {
 
   const firstDriver = device.drivers[0];
   const firstManual = manualesFiltrados[0];
+  const isZebra = device.brand === 'Zebra';
+  const zebraProcedureLines = device.zebraInfo?.combinations ?? [];
 
   return (
     <div>
@@ -116,6 +117,14 @@ export function DeviceDetailPage() {
                 </a>
               </Button>
             )}
+            {isZebra && (
+              <Button asChild variant="outline">
+                <a href={`${import.meta.env.BASE_URL}plantillas/zebra-autoconfig.drs`} download>
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Archivo DRS
+                </a>
+              </Button>
+            )}
             {firstManual && (
               <Button asChild className="bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90">
                 <a href={firstManual.url} target="_blank" rel="noreferrer">
@@ -127,6 +136,21 @@ export function DeviceDetailPage() {
           </>
         }
       />
+
+      {isZebra && zebraProcedureLines.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mb-6 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/10 p-5"
+        >
+          <h2 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-yellow-400">
+            <AlertTriangle className="h-4 w-4" />
+            Restaurar valores de fábrica y calibrar
+          </h2>
+          <p className="text-sm text-white/90">{zebraProcedureLines.join('. ')}.</p>
+        </motion.div>
+      )}
 
       <div className="mb-6">
         <Badge>{device.brand}</Badge>

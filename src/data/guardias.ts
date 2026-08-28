@@ -47,21 +47,29 @@ export function getHospitalGuardiaIndex(date: Date): number {
   return weekIndex % hospitalRotation.length;
 }
 
-export function getTorreGuardia(date: Date): GuardiaPerson {
-  // Serie empieza en julio 2026 con David: DAVI -> FRAN -> ANDREI -> KIKE -> repetir
+// Serie empieza en julio 2026 con David: DAVI -> FRAN -> ANDREI -> KIKE -> repetir.
+// Agosto no tiene turno propio: se muestra el mismo técnico que en julio y no
+// consume un turno en la rotación (septiembre continúa la serie con el siguiente).
+function computeTorreRotationIndex(date: Date): number {
   const month = date.getMonth();
   const year = date.getFullYear();
-  const monthIndex = (month + year * 12) - (6 + 2026 * 12);
-  const rotationIndex = ((monthIndex % 4) + 4) % 4;
-  return torreRotation[rotationIndex];
+  const adjustedMonth = month === 7 ? 6 : month; // Agosto se muestra como julio
+  const monthsSinceJuly = (year * 12 + adjustedMonth) - (2026 * 12 + 6);
+
+  const priorYearsAugusts = Math.max(0, year - 2026);
+  const currentYearAugustPassed = month > 7 ? 1 : 0;
+  const augustsToSkip = priorYearsAugusts + currentYearAugustPassed;
+
+  const adjustedIndex = monthsSinceJuly - augustsToSkip;
+  return ((adjustedIndex % 4) + 4) % 4;
+}
+
+export function getTorreGuardia(date: Date): GuardiaPerson {
+  return torreRotation[computeTorreRotationIndex(date)];
 }
 
 export function getTorreGuardiaIndex(date: Date): number {
-  // Serie empieza en julio 2026 con David: DAVI -> FRAN -> ANDREI -> KIKE -> repetir
-  const month = date.getMonth();
-  const year = date.getFullYear();
-  const monthIndex = (month + year * 12) - (6 + 2026 * 12);
-  return ((monthIndex % 4) + 4) % 4;
+  return computeTorreRotationIndex(date);
 }
 
 export const guardiaRotation = hospitalRotation;

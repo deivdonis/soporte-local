@@ -7,9 +7,7 @@ import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { HomePage } from '@/pages/HomePage';
 import { DispositivosPage, CategoryPage } from '@/pages/DispositivosPage';
 import { DeviceDetailPage } from '@/pages/DeviceDetailPage';
-import { ManualesPage, ManualDetailPage } from '@/pages/ManualesPage';
 import { RedesPage } from '@/pages/RedesPage';
-import { SugerenciasPage } from '@/pages/SugerenciasPage';
 import { InformePage } from '@/pages/InformePage';
 import { ProcedimientosPage } from '@/pages/ProcedimientosPage';
 import { IrreparablesPage } from '@/pages/IrreparablesPage';
@@ -42,10 +40,7 @@ function App() {
             <Route path="/dispositivos" element={<DispositivosPage />} />
             <Route path="/dispositivos/:category" element={<CategoryPageWrapper />} />
             <Route path="/dispositivos/modelo/:id" element={<DeviceDetailPage />} />
-            <Route path="/manuales" element={<ManualesPage />} />
-            <Route path="/manuales/:id" element={<ManualDetailPage />} />
             <Route path="/redes" element={<RedesPage />} />
-            <Route path="/sugerencias" element={<SugerenciasPage />} />
             <Route path="/procedimientos" element={<ProcedimientosPage />} />
             <Route path="/procedimientos/irreparables" element={<IrreparablesPage />} />
             <Route path="/informe" element={<InformePage />} />

@@ -13,7 +13,18 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Keyboard,
 };
 
+const ORDEN_PRIORITARIO = ['usuarios-permisos'];
+
 export function TrucosWindowsPage() {
+  const categoriasOrdenadas = [...categoriasTrucos].sort((a, b) => {
+    const ia = ORDEN_PRIORITARIO.indexOf(a.slug);
+    const ib = ORDEN_PRIORITARIO.indexOf(b.slug);
+    if (ia === -1 && ib === -1) return 0;
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+
   return (
     <div>
       <PageHeader
@@ -23,7 +34,7 @@ export function TrucosWindowsPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {categoriasTrucos.map((cat, i) => {
+        {categoriasOrdenadas.map((cat, i) => {
           const Icon = iconMap[cat.icon];
           return (
             <motion.div

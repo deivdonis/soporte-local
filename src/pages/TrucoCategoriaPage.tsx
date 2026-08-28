@@ -40,7 +40,7 @@ export function TrucoCategoriaPage() {
 
       <PageHeader icon={Icon} title={categoria.title} description={categoria.description} />
 
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
         {categoria.trucos.map((truco, i) => (
           <motion.div
             key={i}

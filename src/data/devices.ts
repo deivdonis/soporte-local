@@ -44,8 +44,8 @@ export interface DeviceModel {
 }
 
 export const deviceCategories: { id: DeviceCategory; name: string; icon: string; description: string }[] = [
-  { id: 'portatiles', name: 'Portátiles', icon: 'MonitorSmartphone', description: 'Ordenadores portátiles y laptops' },
   { id: 'sobremesas', name: 'Sobremesas', icon: 'Monitor', description: 'Ordenadores de sobremesa y workstations' },
+  { id: 'portatiles', name: 'Portátiles', icon: 'MonitorSmartphone', description: 'Ordenadores portátiles y laptops' },
   { id: 'impresoras', name: 'Impresoras', icon: 'Printer', description: 'Impresoras térmicas, láser y de inyección' },
   { id: 'monitores', name: 'Monitores', icon: 'Monitor', description: 'Pantallas y monitores de todo tipo' },
   { id: 'telefonos', name: 'Teléfonos', icon: 'Phone', description: 'Teléfonos IP y sistemas de telefonía' },

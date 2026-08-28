@@ -175,6 +175,9 @@ function GuardiaCalendar({
   headerLabel,
   headerValue,
   headerColor,
+  nextLabel,
+  nextValue,
+  nextColor,
   viewDate,
   onPrev,
   onNext,
@@ -185,6 +188,9 @@ function GuardiaCalendar({
   headerLabel: string;
   headerValue: string;
   headerColor: string;
+  nextLabel?: string;
+  nextValue?: string;
+  nextColor?: string;
   viewDate: Date;
   onPrev: () => void;
   onNext: () => void;
@@ -204,11 +210,21 @@ function GuardiaCalendar({
           </div>
         </div>
 
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">{headerLabel}</p>
-          <p className="text-2xl font-extrabold uppercase" style={{ color: headerColor }}>
-            {headerValue}
-          </p>
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">{headerLabel}</p>
+            <p className="text-2xl font-extrabold uppercase" style={{ color: headerColor }}>
+              {headerValue}
+            </p>
+          </div>
+          {nextValue && (
+            <div className="text-right">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{nextLabel}</p>
+              <p className="text-base font-bold uppercase" style={{ color: nextColor }}>
+                {nextValue}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between">
@@ -302,6 +318,8 @@ export function HomePage() {
 
   const today = new Date();
   const currentHospitalGuardia = getHospitalGuardia(today);
+  const nextWeekDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
+  const nextHospitalGuardia = getHospitalGuardia(nextWeekDate);
 
   return (
     <motion.div
@@ -312,23 +330,23 @@ export function HomePage() {
     >
       <div>
         <h1 className="mb-4 text-xl font-bold text-white">Acceso rápido</h1>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-4 gap-3 sm:flex sm:flex-wrap">
           {quickAccess.map((item, i) => (
             <motion.div
               key={item.to}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="aspect-square"
+              className="aspect-square sm:w-24"
             >
               <Link
                 to={item.to}
-                className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-card p-4 text-center transition-transform hover:scale-[1.02] hover:border-primary/30 hover:bg-accent/30"
+                className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-2 text-center transition-transform hover:scale-[1.02] hover:border-primary/30 hover:bg-accent/30"
               >
-                <div className={cn('flex h-12 w-12 items-center justify-center rounded-xl ring-1', item.classes)}>
-                  <item.icon className="h-6 w-6" />
+                <div className={cn('flex h-9 w-9 items-center justify-center rounded-xl ring-1', item.classes)}>
+                  <item.icon className="h-5 w-5" />
                 </div>
-                <span className="text-sm font-medium text-white">{item.label}</span>
+                <span className="text-xs font-medium text-white">{item.label}</span>
               </Link>
             </motion.div>
           ))}
@@ -346,6 +364,9 @@ export function HomePage() {
             headerLabel="Le toca esta semana a"
             headerValue={currentHospitalGuardia.code}
             headerColor={currentHospitalGuardia.color}
+            nextLabel="La semana que viene"
+            nextValue={nextHospitalGuardia.code}
+            nextColor={nextHospitalGuardia.color}
             viewDate={hospitalViewDate}
             onPrev={() =>
               setHospitalViewDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))

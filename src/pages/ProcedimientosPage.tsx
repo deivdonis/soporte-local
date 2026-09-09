@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileBarChart, AlertTriangle, X } from 'lucide-react';
+import { FileBarChart, AlertTriangle, ShieldCheck, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 const procedures = [
+  {
+    label: 'Garantías',
+    icon: ShieldCheck,
+    description: 'Gestionar la garantía de impresoras y preparar el correo',
+    action: 'navigate',
+    to: '/procedimientos/garantias',
+    classes: 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/20',
+  },
   {
     label: 'Informe Mensual',
     icon: FileBarChart,

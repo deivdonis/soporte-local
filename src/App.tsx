@@ -13,6 +13,7 @@ import { TrucoCategoriaPage } from '@/pages/TrucoCategoriaPage';
 import { InformePage } from '@/pages/InformePage';
 import { ProcedimientosPage } from '@/pages/ProcedimientosPage';
 import { IrreparablesPage } from '@/pages/IrreparablesPage';
+import { GarantiasPage } from '@/pages/GarantiasPage';
 import { AdminPage } from '@/pages/AdminPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { deviceCategories, type DeviceCategory } from '@/data/devices';
@@ -47,6 +48,7 @@ function App() {
             <Route path="/trucos-windows/:slug" element={<TrucoCategoriaPage />} />
             <Route path="/procedimientos" element={<ProcedimientosPage />} />
             <Route path="/procedimientos/irreparables" element={<IrreparablesPage />} />
+            <Route path="/procedimientos/garantias" element={<GarantiasPage />} />
             <Route path="/informe" element={<InformePage />} />
             <Route path="/perfil" element={<ProfilePage />} />
             <Route

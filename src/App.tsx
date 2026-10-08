@@ -15,6 +15,7 @@ import { ProcedimientosPage } from '@/pages/ProcedimientosPage';
 import { IrreparablesPage } from '@/pages/IrreparablesPage';
 import { GarantiasPage } from '@/pages/GarantiasPage';
 import { AdminPage } from '@/pages/AdminPage';
+import { DatosImportantesPage } from '@/pages/DatosImportantesPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { deviceCategories, type DeviceCategory } from '@/data/devices';
 
@@ -49,6 +50,7 @@ function App() {
             <Route path="/procedimientos" element={<ProcedimientosPage />} />
             <Route path="/procedimientos/irreparables" element={<IrreparablesPage />} />
             <Route path="/procedimientos/garantias" element={<GarantiasPage />} />
+            <Route path="/datos-importantes" element={<DatosImportantesPage />} />
             <Route path="/informe" element={<InformePage />} />
             <Route path="/perfil" element={<ProfilePage />} />
             <Route

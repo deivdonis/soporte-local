@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   Phone,
+  Star,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -37,6 +38,7 @@ const mainNav = [
   { to: '/redes', label: 'Redes', icon: Network },
   { to: '/trucos-windows', label: 'Trucos Windows', icon: Wrench },
   { to: '/procedimientos', label: 'Procedimientos', icon: Zap },
+  { to: '/datos-importantes', label: 'Datos importantes', icon: Star },
 ];
 
 const notifications = [

@@ -89,7 +89,7 @@ function TorreTurnosList({ legend }: { legend: Person[] }) {
 
   const turnos = useMemo(() => {
     const list: { key: string; label: string; person: Person; sinTurno: boolean }[] = [];
-    for (let i = -2; i <= 9; i++) {
+    for (let i = -1; i <= 6; i++) {
       const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
       const person = getTorreGuardia(date);
       list.push({
@@ -116,11 +116,11 @@ function TorreTurnosList({ legend }: { legend: Person[] }) {
         <div>
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Le toca este mes a</p>
           {esAgostoActual ? (
-            <p className="text-2xl font-extrabold uppercase text-muted-foreground">
+            <p className="text-lg font-extrabold uppercase text-muted-foreground">
               Nadie (continúa en septiembre)
             </p>
           ) : (
-            <p className="text-2xl font-extrabold uppercase" style={{ color: turnoActual.color }}>
+            <p className="text-xl font-extrabold uppercase" style={{ color: turnoActual.color }}>
               {turnoActual.full}
             </p>
           )}
@@ -135,11 +135,11 @@ function TorreTurnosList({ legend }: { legend: Person[] }) {
               <div
                 key={t.key}
                 className={cn(
-                  'flex items-center justify-between gap-3 py-3',
+                  'flex items-center justify-between gap-2 py-1.5',
                   isCurrent && 'rounded-xl bg-accent/30 px-3'
                 )}
               >
-                <span className={cn('text-sm', isCurrent ? 'font-bold text-white' : 'text-muted-foreground')}>
+                <span className={cn('text-xs', isCurrent ? 'font-bold text-white' : 'text-muted-foreground')}>
                   {t.label}
                 </span>
                 {t.sinTurno ? (
@@ -353,7 +353,7 @@ export function HomePage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

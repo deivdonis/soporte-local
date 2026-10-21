@@ -10,7 +10,10 @@ import {
   Package,
   ChevronRight,
   ArrowLeft,
+  FileDown,
+  ClipboardList,
 } from 'lucide-react';
+import { inventarioZebras, inventarioZebrasDoc } from '@/data/inventarioZebras';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { cn } from '@/lib/utils';
 import {
@@ -174,6 +177,65 @@ export function CategoryPage({ category }: { category: DeviceCategory }) {
           </p>
         )}
       </div>
+
+      {category === 'impresoras' && <InventarioZebras />}
     </div>
+  );
+}
+
+function InventarioZebras() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="mt-8 rounded-2xl border border-border bg-card p-6"
+    >
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+            <ClipboardList className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-white">Inventario de Zebras</h2>
+            <p className="text-sm text-muted-foreground">Registro de impresoras de etiquetas por ubicación</p>
+          </div>
+        </div>
+        <a
+          href={`${import.meta.env.BASE_URL}${inventarioZebrasDoc}`}
+          download
+          className="inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:text-white"
+        >
+          <FileDown className="h-4 w-4" />
+          Descargar inventario
+        </a>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="py-2 pr-4 font-semibold">Ubicación / Servicio</th>
+              <th className="py-2 font-semibold">Modelo de impresora</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {inventarioZebras.map((item) => (
+              <tr key={item.ubicacion}>
+                <td className="py-2.5 pr-4 text-white">{item.ubicacion}</td>
+                <td className="py-2.5">
+                  {item.deviceId ? (
+                    <Link to={`/dispositivos/modelo/${item.deviceId}`} className="font-medium text-primary hover:underline">
+                      {item.modelo}
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">{item.modelo}</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </motion.div>
   );
 }

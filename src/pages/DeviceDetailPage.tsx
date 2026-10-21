@@ -90,6 +90,8 @@ export function DeviceDetailPage() {
 
   const firstDriver = device.drivers[0];
   const firstManual = manualesFiltrados[0];
+  const isLocal = (url: string) => !/^https?:\/\//.test(url);
+  const resolveUrl = (url: string) => (isLocal(url) ? `${import.meta.env.BASE_URL}${url}` : url);
   const isZebra = device.brand === 'Zebra';
   const zebraProcedureLines = device.zebraInfo?.combinations ?? [];
 
@@ -127,7 +129,10 @@ export function DeviceDetailPage() {
             )}
             {firstManual && (
               <Button asChild className="bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90">
-                <a href={firstManual.url} target="_blank" rel="noreferrer">
+                <a
+                  href={resolveUrl(firstManual.url)}
+                  {...(isLocal(firstManual.url) ? { download: true } : { target: '_blank', rel: 'noreferrer' })}
+                >
                   <BookOpen className="mr-2 h-4 w-4" />
                   Manual
                 </a>
@@ -219,6 +224,50 @@ export function DeviceDetailPage() {
                   </div>
                 </>
               )}
+            </div>
+          </motion.div>
+        )}
+
+        {device.configGuide && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.12 }}
+            className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
+          >
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-white">{device.configGuide.title}</h2>
+                {device.configGuide.description && (
+                  <p className="mt-1 text-sm text-muted-foreground">{device.configGuide.description}</p>
+                )}
+              </div>
+              {firstManual && isLocal(firstManual.url) && (
+                <Button asChild variant="outline" size="sm">
+                  <a href={resolveUrl(firstManual.url)} download>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Descargar manual
+                  </a>
+                </Button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {device.configGuide.figures.map((fig) => (
+                <figure key={fig.image} className="overflow-hidden rounded-xl border border-border bg-background/40">
+                  <a href={resolveUrl(fig.image)} target="_blank" rel="noreferrer">
+                    <img
+                      src={resolveUrl(fig.image)}
+                      alt={fig.title}
+                      loading="lazy"
+                      className="aspect-[3/4] w-full object-cover transition-opacity hover:opacity-90"
+                    />
+                  </a>
+                  <figcaption className="p-3">
+                    <p className="text-sm font-semibold text-primary">{fig.title}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{fig.caption}</p>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </motion.div>
         )}

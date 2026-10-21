@@ -41,6 +41,10 @@ export interface DeviceModel {
     voicemail?: string; speedDial?: string; transfer?: string;
   };
   factoryReset?: { software: string; buttons: string };
+  configGuide?: {
+    title: string; description?: string;
+    figures: { title: string; caption: string; image: string }[];
+  };
 }
 
 export const deviceCategories: { id: DeviceCategory; name: string; icon: string; description: string }[] = [
@@ -1600,6 +1604,38 @@ export const devices: DeviceModel[] = [
       buttons: 'Mantener Feed 10 segundos durante el encendido',
     },
     notes: ['Alternativa económica para etiquetado de bajo volumen'],
+  },
+  {
+    id: 'tsc-dt039-50-brazalete-infantil',
+    brand: 'TSC',
+    model: 'DT039-50 (Brazalete Infantil)',
+    category: 'impresoras',
+    description: 'Impresora térmica de brazaletes infantiles. Cola de impresión "BRAZALETE INFANTIL" con driver Seagull/BarTender y material Scanband 25 mm.',
+    specs: [
+      { label: 'Cola de impresión', value: 'BRAZALETE INFANTIL' },
+      { label: 'Material', value: 'Scanband 25mm (18,0 mm x 150,0 mm)' },
+      { label: 'Orientación', value: 'Horizontal' },
+      { label: 'Desplazamiento vertical', value: '25,0 mm' },
+      { label: 'Desplazamiento horizontal', value: '0,0 mm' },
+      { label: 'Resolución X / Y', value: '253 / 243' },
+      { label: 'Ancho imprimible', value: '60,0 mm' },
+    ],
+    drivers: [{ name: 'Driver Seagull/TSC', url: 'https://www.tscprinters.com/support', os: 'Windows 10/11', version: '2023.06' }],
+    manuals: [{ name: 'Manual Brazalete Infantil (configuración)', url: 'manuales/Brazalete_INFANTIL_v2.docx', type: 'DOCX' }],
+    links: [{ name: 'Soporte TSC', url: 'https://www.tscprinters.com/support' }],
+    troubleshooting: [
+      { title: 'El brazalete sale descuadrado o cortado', steps: ['Abrir Propiedades de "BRAZALETE INFANTIL" > Preferencias > Preparar página', 'Comprobar material Scanband 25mm (18,0 x 150,0 mm) y orientación Horizontal', 'En Opciones avanzadas > Posición de impresión: desplazamiento horizontal 0,0 mm y vertical 25,0 mm', 'En Herramientas > Opciones del controlador > Especificaciones de impresora: marcar "Reemplazar valores predeterminados", resolución X 253, Y 243 y ancho imprimible 60,0 mm'] },
+    ],
+    configGuide: {
+      title: 'Configuración del Brazalete Infantil',
+      description: 'Propiedades y opciones de impresión de la cola "BRAZALETE INFANTIL".',
+      figures: [
+        { title: '1. Preparar página y material (Scanband 25mm)', caption: 'Material Scanband 25mm (18,0 x 150,0 mm), orientación horizontal y preestablecido.', image: 'manuales/brazalete-infantil/figura1.png' },
+        { title: '2. Opciones avanzadas - Posición de impresión', caption: 'Desplazamiento horizontal 0,0 mm, vertical 25,0 mm y orientación 0°.', image: 'manuales/brazalete-infantil/figura2.png' },
+        { title: '3. Opciones del controlador - Especificaciones de modelo', caption: 'Reemplazar valores del fabricante: resolución X 253 / Y 243, ancho imprimible 60,0 mm, seguimiento Centro.', image: 'manuales/brazalete-infantil/figura3.png' },
+      ],
+    },
+    notes: ['Impresora de identificación de recién nacidos y pacientes pediátricos'],
   },
   // --- Monitores ---
   {

@@ -172,19 +172,18 @@ export function DeviceDetailPage() {
     ),
   });
 
-  if (device.configGuide) {
-    const guide = device.configGuide;
+  (device.configGuides ?? []).forEach((guide, gi) => {
     sections.push({
-      id: 'config-guide',
+      id: `config-guide-${gi}`,
       label: guide.title,
       icon: ImageIcon,
       content: (
         <div>
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             {guide.description && <p className="text-sm text-muted-foreground">{guide.description}</p>}
-            {firstManual && isLocal(firstManual.url) && (
+            {guide.docUrl && (
               <Button asChild variant="outline" size="sm">
-                <a href={resolveUrl(firstManual.url)} download>
+                <a href={resolveUrl(guide.docUrl)} download>
                   <FileDown className="mr-2 h-4 w-4" />
                   Descargar manual
                 </a>
@@ -212,7 +211,7 @@ export function DeviceDetailPage() {
         </div>
       ),
     });
-  }
+  });
 
   if (device.bios) {
     const bios = device.bios;

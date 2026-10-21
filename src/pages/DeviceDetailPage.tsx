@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
@@ -56,7 +56,13 @@ function StepList({ steps }: { steps: string[] }) {
 export function DeviceDetailPage() {
   const { id } = useParams();
   const device = getDeviceById(id ?? '');
-  const [openSection, setOpenSection] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const seccion = searchParams.get('seccion');
+  const [openSection, setOpenSection] = useState<string | null>(seccion);
+
+  useEffect(() => {
+    setOpenSection(seccion);
+  }, [id, seccion]);
 
   if (!device) {
     return (

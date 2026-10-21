@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -9,7 +9,6 @@ import {
   Zap,
   Wrench,
   Settings,
-  Search,
   Bell,
   User,
   LogOut,
@@ -21,7 +20,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { devices } from '@/data/devices';
+import { GlobalSearch } from '@/components/layout/GlobalSearch';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -44,14 +43,6 @@ const mainNav = [
 const notifications = [
   { id: 1, title: 'Documentación actualizada', time: 'Hace 1 día', type: 'info' as const },
 ];
-
-interface SearchResult {
-  id: string;
-  label: string;
-  category: string;
-  to: string;
-  icon: typeof MonitorSmartphone;
-}
 
 function NotificationDot({ type }: { type: 'info' | 'success' }) {
   return (
@@ -76,43 +67,10 @@ export function TopNav({
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
-  const [query, setQuery] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-
   const navItems = useMemo(
     () => (isAdmin ? [...mainNav, { to: '/admin', label: 'Admin', icon: Settings }] : mainNav),
     [isAdmin]
   );
-
-  const results: SearchResult[] = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (q.length < 2) return [];
-
-    const deviceResults: SearchResult[] = devices
-      .filter(
-        (d) => d.brand.toLowerCase().includes(q) || d.model.toLowerCase().includes(q)
-      )
-      .map((d) => ({
-        id: `device-${d.id}`,
-        label: `${d.brand} ${d.model}`,
-        category: d.category,
-        to: `/dispositivos/modelo/${d.id}`,
-        icon: MonitorSmartphone,
-      }));
-
-    return deviceResults.slice(0, 6);
-  }, [query]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setSearchOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleLogout = () => {
     logout();
@@ -172,48 +130,7 @@ export function TopNav({
 
           {/* Right: search, notifications, profile */}
           <div className="flex items-center gap-2 lg:gap-4">
-            <div ref={searchRef} className="relative hidden lg:block">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setSearchOpen(true);
-                }}
-                onFocus={() => setSearchOpen(true)}
-                placeholder="Buscar dispositivos..."
-                className="h-10 w-64 rounded-xl border border-border bg-card py-2 pl-9 pr-3 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-
-              {searchOpen && query.trim().length >= 2 && (
-                <div className="absolute left-0 right-0 top-full mt-2 max-h-80 overflow-y-auto rounded-xl border border-border bg-popover p-1.5 shadow-lg">
-                  {results.length === 0 ? (
-                    <p className="px-3 py-4 text-center text-sm text-muted-foreground">
-                      No hay resultados
-                    </p>
-                  ) : (
-                    results.map((result) => (
-                      <Link
-                        key={result.id}
-                        to={result.to}
-                        onClick={() => {
-                          setSearchOpen(false);
-                          setQuery('');
-                        }}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-accent/50"
-                      >
-                        <result.icon className="h-4 w-4 shrink-0 text-primary" />
-                        <span className="flex-1 truncate text-white">{result.label}</span>
-                        <span className="shrink-0 text-xs text-muted-foreground">
-                          {result.category}
-                        </span>
-                      </Link>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
+            <GlobalSearch />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

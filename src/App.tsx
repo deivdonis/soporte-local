@@ -17,6 +17,7 @@ import { GarantiasPage } from '@/pages/GarantiasPage';
 import { AdminPage } from '@/pages/AdminPage';
 import { DatosImportantesPage } from '@/pages/DatosImportantesPage';
 import { ProfilePage } from '@/pages/ProfilePage';
+import { ManualPage } from '@/pages/ManualPage';
 import { deviceCategories, type DeviceCategory } from '@/data/devices';
 
 function CategoryPageWrapper() {
@@ -44,6 +45,7 @@ function App() {
             <Route path="/dispositivos" element={<DispositivosPage />} />
             <Route path="/dispositivos/:category" element={<CategoryPageWrapper />} />
             <Route path="/dispositivos/modelo/:id" element={<DeviceDetailPage />} />
+            <Route path="/manuales/:id" element={<ManualPage />} />
             <Route path="/redes" element={<RedesPage />} />
             <Route path="/trucos-windows" element={<TrucosWindowsPage />} />
             <Route path="/trucos-windows/:slug" element={<TrucoCategoriaPage />} />

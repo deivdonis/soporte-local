@@ -1531,6 +1531,48 @@ export const devices: DeviceModel[] = [
     notes: ['Impresora térmica de etiquetas', 'Usar solo etiquetas certificadas'],
   },
   {
+    id: 'zebra-zd421',
+    brand: 'Zebra',
+    model: 'ZD421',
+    category: 'impresoras',
+    description: 'Impresora térmica de etiquetas de escritorio, sucesora de la ZD420, con conectividad USB, Ethernet y Bluetooth LE.',
+    specs: [
+      { label: 'Tipo', value: 'Térmica directa / transferencia térmica (según versión)' },
+      { label: 'Resolución', value: '203 dpi (8 dots/mm) / 300 dpi opcional' },
+      { label: 'Ancho impresión', value: '104 mm (4 pulg)' },
+      { label: 'Velocidad', value: 'Hasta 152 mm/s (203 dpi)' },
+      { label: 'Conectividad', value: 'USB 2.0, USB Host, Bluetooth LE, Ethernet/WiFi (módulo)' },
+    ],
+    drivers: zebraDrivers,
+    manuals: [{ name: 'Manual de usuario', url: 'https://www.zebra.com/support', type: 'PDF' }],
+    links: zebraLinks,
+    shortcuts: [
+      'Pause + Cancel (2s) - Calibración SmartCal',
+      'Feed + Cancel (2s) - Imprimir configuración',
+      'Pause + Feed (4s) - Restaurar valores de impresora',
+      'LEDs de estado: Status, Pause, Data, Supplies, Network',
+    ],
+    troubleshooting: [
+      { title: 'No imprime', steps: ['Verificar conexión USB o de red', 'Comprobar que el driver ZDesigner está instalado', 'Calibrar sensores con Pause + Cancel'] },
+      { title: 'LED Supplies en rojo', steps: ['Comprobar que hay etiquetas cargadas', 'Si es de transferencia, revisar el ribbon', 'Cerrar bien la tapa y pulsar Feed'] },
+      { title: 'Calidad de impresión baja', steps: ['Limpiar cabezal con alcohol isopropílico', 'Verificar tipo de etiqueta', 'Ajustar oscuridad en driver'] },
+    ],
+    zebraInfo: zebraInfo({
+      configLabel: 'Feed + Cancel (2s) - Imprime etiqueta de configuración',
+      combinations: [
+        'Pause + Feed (4s) - Restaurar valores de fábrica',
+        'Pause + Cancel (2s) - Calibración de sensores (SmartCal)',
+        'Feed + Cancel (2s) - Imprimir etiqueta de configuración',
+      ],
+    }),
+    printerInfo: zebraPrinterInfo(),
+    factoryReset: {
+      software: 'Zebra Setup Utilities > Manage > Restore Factory Defaults',
+      buttons: 'Mantener Pause + Feed 4 segundos con la impresora encendida, soltar cuando parpadee el LED Status',
+    },
+    notes: ['Ubicada en 2A y Laboratorio según el inventario'],
+  },
+  {
     id: 'zebra-gk420t',
     brand: 'Zebra',
     model: 'GK420t',

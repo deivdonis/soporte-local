@@ -14,6 +14,15 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import { inventarioZebras, inventarioZebrasDoc } from '@/data/inventarioZebras';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { cn } from '@/lib/utils';
 import {
@@ -101,6 +110,7 @@ export function CategoryPage({ category }: { category: DeviceCategory }) {
         icon={iconMap[categoryInfo?.icon ?? ''] ?? Package}
         title={categoryInfo?.name ?? 'Dispositivos'}
         description={categoryInfo?.description}
+        actions={category === 'impresoras' ? <InventarioZebras /> : undefined}
       />
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -177,30 +187,25 @@ export function CategoryPage({ category }: { category: DeviceCategory }) {
           </p>
         )}
       </div>
-
-      {category === 'impresoras' && <InventarioZebras />}
     </div>
   );
 }
 
 function InventarioZebras() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="mt-8 rounded-2xl border border-border bg-card p-6"
-    >
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
-            <ClipboardList className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-white">Inventario de Zebras</h2>
-            <p className="text-sm text-muted-foreground">Registro de impresoras de etiquetas por ubicación</p>
-          </div>
-        </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90">
+          <ClipboardList className="mr-2 h-4 w-4" />
+          Inventario
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto rounded-2xl border-border bg-card">
+      <DialogHeader>
+        <DialogTitle className="text-white">Inventario de Zebras</DialogTitle>
+        <DialogDescription>Registro de impresoras de etiquetas por ubicación</DialogDescription>
+      </DialogHeader>
+      <div className="flex justify-end">
         <a
           href={`${import.meta.env.BASE_URL}${inventarioZebrasDoc}`}
           download
@@ -236,6 +241,7 @@ function InventarioZebras() {
           </tbody>
         </table>
       </div>
-    </motion.div>
+      </DialogContent>
+    </Dialog>
   );
 }

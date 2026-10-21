@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Monitor,
@@ -9,10 +10,20 @@ import {
   KeyRound,
   AlertTriangle,
   FileDown,
+  ListChecks,
+  Cpu,
+  Image as ImageIcon,
+  Phone,
+  Wrench,
+  History,
+  StickyNote,
+  RotateCcw,
+  ChevronDown,
 } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   Accordion,
   AccordionItem,
@@ -21,9 +32,31 @@ import {
 } from '@/components/ui/accordion';
 import { getDeviceById, deviceCategories } from '@/data/devices';
 
+interface Section {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  warning?: boolean;
+  content: React.ReactNode;
+}
+
+function StepList({ steps }: { steps: string[] }) {
+  return (
+    <ol className="space-y-2">
+      {steps.map((step, i) => (
+        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          {step}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function DeviceDetailPage() {
   const { id } = useParams();
   const device = getDeviceById(id ?? '');
+  const [openSection, setOpenSection] = useState<string | null>(null);
 
   if (!device) {
     return (
@@ -95,6 +128,245 @@ export function DeviceDetailPage() {
   const isZebra = device.brand === 'Zebra';
   const zebraProcedureLines = device.zebraInfo?.combinations ?? [];
 
+  const factoryResetContent = device.factoryReset && (
+    <div className="space-y-3">
+      <div>
+        <h4 className="text-xs font-semibold text-muted-foreground">Por software</h4>
+        <p className="mt-1 text-sm text-white/90">{device.factoryReset.software}</p>
+      </div>
+      <div>
+        <h4 className="text-xs font-semibold text-muted-foreground">Por botones</h4>
+        <p className="mt-1 text-sm text-white/90">{device.factoryReset.buttons}</p>
+      </div>
+    </div>
+  );
+
+  const sections: Section[] = [];
+
+  if (isZebra && zebraProcedureLines.length > 0) {
+    sections.push({
+      id: 'reset-calibrar',
+      label: 'Reset y calibrar',
+      icon: AlertTriangle,
+      warning: true,
+      content: <StepList steps={zebraProcedureLines} />,
+    });
+  }
+
+  sections.push({
+    id: 'specs',
+    label: 'Especificaciones',
+    icon: ListChecks,
+    content: (
+      <dl className="divide-y divide-border">
+        {device.specs.map((spec) => (
+          <div key={spec.label} className="flex items-center justify-between gap-4 py-2.5 text-sm">
+            <dt className="text-muted-foreground">{spec.label}</dt>
+            <dd className="text-right font-medium text-white">{spec.value}</dd>
+          </div>
+        ))}
+        {device.specs.length === 0 && (
+          <p className="py-2.5 text-sm text-muted-foreground">Sin especificaciones registradas.</p>
+        )}
+      </dl>
+    ),
+  });
+
+  if (device.configGuide) {
+    const guide = device.configGuide;
+    sections.push({
+      id: 'config-guide',
+      label: guide.title,
+      icon: ImageIcon,
+      content: (
+        <div>
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+            {guide.description && <p className="text-sm text-muted-foreground">{guide.description}</p>}
+            {firstManual && isLocal(firstManual.url) && (
+              <Button asChild variant="outline" size="sm">
+                <a href={resolveUrl(firstManual.url)} download>
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Descargar manual
+                </a>
+              </Button>
+            )}
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {guide.figures.map((fig) => (
+              <figure key={fig.image} className="overflow-hidden rounded-xl border border-border bg-background/40">
+                <a href={resolveUrl(fig.image)} target="_blank" rel="noreferrer">
+                  <img
+                    src={resolveUrl(fig.image)}
+                    alt={fig.title}
+                    loading="lazy"
+                    className="aspect-[3/4] w-full object-cover transition-opacity hover:opacity-90"
+                  />
+                </a>
+                <figcaption className="p-3">
+                  <p className="text-sm font-semibold text-primary">{fig.title}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{fig.caption}</p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      ),
+    });
+  }
+
+  if (device.bios) {
+    const bios = device.bios;
+    sections.push({
+      id: 'bios',
+      label: 'Acceso a la BIOS',
+      icon: Cpu,
+      content: (
+        <div className="space-y-4">
+          <div className="rounded-lg border-l-4 border-yellow-500 bg-yellow-500/10 p-3">
+            <h3 className="text-sm font-semibold text-yellow-400">Acceso a la BIOS</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {bios.key || 'Ver instrucciones específicas del modelo'}
+            </p>
+          </div>
+          {bios.bootMenu && (
+            <div>
+              <h3 className="text-sm font-semibold text-primary">Menú de arranque</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{bios.bootMenu}</p>
+            </div>
+          )}
+          {bios.recovery && (
+            <div>
+              <h3 className="text-sm font-semibold text-primary">Recuperación</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{bios.recovery}</p>
+            </div>
+          )}
+        </div>
+      ),
+    });
+  }
+
+  if (factoryResetContent) {
+    sections.push({
+      id: 'factory-reset',
+      label: 'Restablecer de fábrica',
+      icon: RotateCcw,
+      content: factoryResetContent,
+    });
+  }
+
+  if (device.telephoneInfo) {
+    const t = device.telephoneInfo;
+    sections.push({
+      id: 'telefono',
+      label: 'Información del teléfono',
+      icon: Phone,
+      content: (
+        <div className="space-y-4">
+          {t.ip && (
+            <div>
+              <h3 className="text-sm font-semibold text-primary">Dirección IP</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{t.ip}</p>
+            </div>
+          )}
+          {t.firmware && (
+            <div>
+              <h3 className="text-sm font-semibold text-primary">Firmware</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{t.firmware}</p>
+            </div>
+          )}
+          {t.factoryReset && (
+            <div>
+              <h3 className="text-sm font-semibold text-primary">Reset de fábrica</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{t.factoryReset}</p>
+            </div>
+          )}
+          {t.reset && t.reset.length > 0 && (
+            <div>
+              <h3 className="mb-2 text-sm font-semibold text-primary">Pasos para reset</h3>
+              <StepList steps={t.reset} />
+            </div>
+          )}
+        </div>
+      ),
+    });
+  }
+
+  if (shortcutEntries.length > 0) {
+    sections.push({
+      id: 'atajos',
+      label: 'Atajos y trucos',
+      icon: KeyRound,
+      content: (
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          {shortcutEntries.map((entry, i) => (
+            <div
+              key={i}
+              className="flex items-start gap-2.5 rounded-xl border border-border bg-background/40 p-3"
+            >
+              <kbd className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border bg-muted font-mono text-xs text-muted-foreground">
+                <KeyRound className="h-3 w-3" />
+              </kbd>
+              <span className="text-sm text-muted-foreground">{entry}</span>
+            </div>
+          ))}
+        </div>
+      ),
+    });
+  }
+
+  if (device.troubleshooting && device.troubleshooting.length > 0) {
+    const items = device.troubleshooting;
+    sections.push({
+      id: 'problemas',
+      label: 'Solución de problemas',
+      icon: Wrench,
+      content: (
+        <Accordion type="single" collapsible>
+          {items.map((item, i) => (
+            <AccordionItem key={i} value={`item-${i}`}>
+              <AccordionTrigger className="text-white">{item.title}</AccordionTrigger>
+              <AccordionContent>
+                <StepList steps={item.steps} />
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      ),
+    });
+  }
+
+  if (device.notes && device.notes.length > 0) {
+    sections.push({
+      id: 'notas',
+      label: 'Notas',
+      icon: StickyNote,
+      content: <StepList steps={device.notes} />,
+    });
+  }
+
+  if (device.history && device.history.length > 0) {
+    const history = device.history;
+    sections.push({
+      id: 'historial',
+      label: 'Historial',
+      icon: History,
+      content: (
+        <ul className="space-y-3">
+          {history.map((h, i) => (
+            <li key={i} className="flex gap-3 text-sm">
+              <span className="shrink-0 text-muted-foreground">
+                {new Date(h.date).toLocaleDateString('es-ES')}
+              </span>
+              <span className="text-white">— {h.event}</span>
+            </li>
+          ))}
+        </ul>
+      ),
+    });
+  }
+
+  const current = sections.find((s) => s.id === openSection);
+
   return (
     <div>
       <Link
@@ -142,253 +414,62 @@ export function DeviceDetailPage() {
         }
       />
 
-      {isZebra && zebraProcedureLines.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mb-6 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/10 p-5"
-        >
-          <h2 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-yellow-400">
-            <AlertTriangle className="h-4 w-4" />
-            Restaurar valores de fábrica y calibrar
-          </h2>
-          <p className="text-sm text-white/90">{zebraProcedureLines.join('. ')}.</p>
-        </motion.div>
-      )}
-
       <div className="mb-6">
         <Badge>{device.brand}</Badge>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.05 }}
-          className="rounded-2xl border border-border bg-card p-6"
-        >
-          <h2 className="mb-4 text-base font-bold text-white">Especificaciones</h2>
-          <dl className="divide-y divide-border">
-            {device.specs.map((spec) => (
-              <div key={spec.label} className="flex items-center justify-between gap-4 py-2.5 text-sm">
-                <dt className="text-muted-foreground">{spec.label}</dt>
-                <dd className="text-right font-medium text-white">{spec.value}</dd>
-              </div>
-            ))}
-            {device.specs.length === 0 && (
-              <p className="py-2.5 text-sm text-muted-foreground">Sin especificaciones registradas.</p>
-            )}
-          </dl>
-        </motion.div>
-
-        {device.bios && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="rounded-2xl border border-border bg-card p-6"
-          >
-            <h2 className="mb-4 text-base font-bold text-white">ACCESO A LA BIOS</h2>
-            <div className="space-y-4">
-              <div className="rounded-lg border-l-4 border-yellow-500 bg-yellow-500/10 p-3">
-                <h3 className="text-sm font-semibold text-yellow-400">Acceso a la BIOS</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {device.bios.key || 'Ver instrucciones específicas del modelo'}
-                </p>
-              </div>
-              {device.bios.bootMenu && (
-                <div>
-                  <h3 className="text-sm font-semibold text-primary">Menú de arranque</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{device.bios.bootMenu}</p>
-                </div>
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+        {sections.map((s) => {
+          const Icon = s.icon;
+          const active = s.id === openSection;
+          return (
+            <button
+              key={s.id}
+              onClick={() => setOpenSection(active ? null : s.id)}
+              className={cn(
+                'flex items-center gap-2.5 rounded-xl border px-3.5 py-3 text-left text-sm font-medium transition-colors',
+                active
+                  ? s.warning
+                    ? 'border-yellow-500 bg-yellow-500/15 text-yellow-300'
+                    : 'border-primary bg-primary/15 text-white'
+                  : s.warning
+                    ? 'border-yellow-500/40 bg-yellow-500/5 text-yellow-400 hover:bg-yellow-500/10'
+                    : 'border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-white'
               )}
-              {device.bios.recovery && (
-                <div>
-                  <h3 className="text-sm font-semibold text-primary">Recuperación</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{device.bios.recovery}</p>
-                </div>
-              )}
-              {device.factoryReset && (
-                <>
-                  <div className="border-t border-border pt-4">
-                    <h3 className="text-sm font-semibold text-primary">Restablecimiento de fábrica</h3>
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-muted-foreground">Por software</h4>
-                    <p className="mt-1 text-sm text-muted-foreground">{device.factoryReset.software}</p>
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-muted-foreground">Por botones</h4>
-                    <p className="mt-1 text-sm text-muted-foreground">{device.factoryReset.buttons}</p>
-                  </div>
-                </>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {device.configGuide && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.12 }}
-            className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
-          >
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 className="text-base font-bold text-white">{device.configGuide.title}</h2>
-                {device.configGuide.description && (
-                  <p className="mt-1 text-sm text-muted-foreground">{device.configGuide.description}</p>
-                )}
-              </div>
-              {firstManual && isLocal(firstManual.url) && (
-                <Button asChild variant="outline" size="sm">
-                  <a href={resolveUrl(firstManual.url)} download>
-                    <FileDown className="mr-2 h-4 w-4" />
-                    Descargar manual
-                  </a>
-                </Button>
-              )}
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {device.configGuide.figures.map((fig) => (
-                <figure key={fig.image} className="overflow-hidden rounded-xl border border-border bg-background/40">
-                  <a href={resolveUrl(fig.image)} target="_blank" rel="noreferrer">
-                    <img
-                      src={resolveUrl(fig.image)}
-                      alt={fig.title}
-                      loading="lazy"
-                      className="aspect-[3/4] w-full object-cover transition-opacity hover:opacity-90"
-                    />
-                  </a>
-                  <figcaption className="p-3">
-                    <p className="text-sm font-semibold text-primary">{fig.title}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{fig.caption}</p>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {device.telephoneInfo && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.15 }}
-            className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
-          >
-            <h2 className="mb-4 text-base font-bold text-white">Información del teléfono</h2>
-            <div className="space-y-4">
-              {device.telephoneInfo.ip && (
-                <div>
-                  <h3 className="text-sm font-semibold text-primary">Dirección IP</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{device.telephoneInfo.ip}</p>
-                </div>
-              )}
-              {device.telephoneInfo.firmware && (
-                <div>
-                  <h3 className="text-sm font-semibold text-primary">Firmware</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{device.telephoneInfo.firmware}</p>
-                </div>
-              )}
-              {device.telephoneInfo.factoryReset && (
-                <div>
-                  <h3 className="text-sm font-semibold text-primary">Reset de fábrica</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{device.telephoneInfo.factoryReset}</p>
-                </div>
-              )}
-              {device.telephoneInfo.reset && device.telephoneInfo.reset.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-primary">Pasos para reset</h3>
-                  <ol className="mt-2 space-y-1">
-                    {device.telephoneInfo.reset.map((step, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                        {step}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {shortcutEntries.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
-          >
-            <h2 className="mb-4 text-base font-bold text-white">Atajos, trucos y combinaciones</h2>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {shortcutEntries.map((entry, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-2.5 rounded-xl border border-border bg-background/40 p-3"
-                >
-                  <kbd className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border bg-muted font-mono text-xs text-muted-foreground">
-                    <KeyRound className="h-3 w-3" />
-                  </kbd>
-                  <span className="text-sm text-muted-foreground">{entry}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {device.troubleshooting && device.troubleshooting.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.25 }}
-            className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
-          >
-            <h2 className="mb-4 text-base font-bold text-white">Solución de problemas</h2>
-            <Accordion type="single" collapsible>
-              {device.troubleshooting.map((item, i) => (
-                <AccordionItem key={i} value={`item-${i}`}>
-                  <AccordionTrigger className="text-white">{item.title}</AccordionTrigger>
-                  <AccordionContent>
-                    <ol className="space-y-2">
-                      {item.steps.map((step, j) => (
-                        <li key={j} className="flex items-start gap-2 text-sm text-muted-foreground">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                          {step}
-                        </li>
-                      ))}
-                    </ol>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </motion.div>
-        )}
-
-        {device.history && device.history.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.3 }}
-            className="rounded-2xl border border-border bg-card p-6 lg:col-span-2"
-          >
-            <h2 className="mb-4 text-base font-bold text-white">Historial</h2>
-            <ul className="space-y-3">
-              {device.history.map((h, i) => (
-                <li key={i} className="flex gap-3 text-sm">
-                  <span className="shrink-0 text-muted-foreground">
-                    {new Date(h.date).toLocaleDateString('es-ES')}
-                  </span>
-                  <span className="text-white">— {h.event}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
+            >
+              <Icon className={cn('h-4 w-4 shrink-0', s.warning ? 'text-yellow-400' : 'text-primary')} />
+              <span className="min-w-0 flex-1 truncate">{s.label}</span>
+              <ChevronDown className={cn('h-4 w-4 shrink-0 transition-transform', active && 'rotate-180')} />
+            </button>
+          );
+        })}
       </div>
+
+      <AnimatePresence mode="wait">
+        {current && (
+          <motion.div
+            key={current.id}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            className={cn(
+              'mt-4 rounded-2xl border bg-card p-6',
+              current.warning ? 'border-l-4 border-yellow-500 bg-yellow-500/10' : 'border-border'
+            )}
+          >
+            <h2
+              className={cn(
+                'mb-4 text-base font-bold',
+                current.warning ? 'uppercase tracking-wide text-yellow-400' : 'text-white'
+              )}
+            >
+              {current.label}
+            </h2>
+            {current.content}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

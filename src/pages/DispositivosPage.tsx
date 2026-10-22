@@ -12,6 +12,8 @@ import {
   ArrowLeft,
   FileDown,
   ClipboardList,
+  BookOpen,
+  Eye,
 } from 'lucide-react';
 import { inventarioZebras, inventarioZebrasDoc } from '@/data/inventarioZebras';
 import { Button } from '@/components/ui/button';
@@ -110,7 +112,12 @@ export function CategoryPage({ category }: { category: DeviceCategory }) {
         icon={iconMap[categoryInfo?.icon ?? ''] ?? Package}
         title={categoryInfo?.name ?? 'Dispositivos'}
         description={categoryInfo?.description}
-        actions={category === 'impresoras' ? <InventarioZebras /> : undefined}
+        actions={
+          <>
+            <ManualesCategoria category={category} />
+            {category === 'impresoras' && <InventarioZebras />}
+          </>
+        }
       />
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -188,6 +195,70 @@ export function CategoryPage({ category }: { category: DeviceCategory }) {
         )}
       </div>
     </div>
+  );
+}
+
+function ManualesCategoria({ category }: { category: DeviceCategory }) {
+  const base = import.meta.env.BASE_URL;
+  const items = getDevicesByCategory(category).flatMap((d) =>
+    (d.configGuides ?? []).map((g, i) => ({
+      key: `${d.id}-${i}`,
+      title: g.title,
+      device: `${d.brand} ${d.model}`,
+      description: g.description,
+      to: `/dispositivos/modelo/${d.id}?seccion=config-guide-${i}`,
+      docUrl: g.docUrl,
+    }))
+  );
+  if (items.length === 0) return null;
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          <BookOpen className="mr-2 h-4 w-4" />
+          Manuales
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto rounded-2xl border-border bg-card">
+        <DialogHeader>
+          <DialogTitle className="text-white">Manuales</DialogTitle>
+          <DialogDescription>Guías de configuración con capturas</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2.5">
+          {items.map((m) => (
+            <div
+              key={m.key}
+              className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-background/40 p-3"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+                <BookOpen className="h-4 w-4 text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-white">{m.title}</p>
+                <p className="text-xs text-muted-foreground">{m.device}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Link to={m.to}>
+                    <Eye className="mr-1.5 h-4 w-4" />
+                    Ver
+                  </Link>
+                </Button>
+                {m.docUrl && (
+                  <Button asChild size="sm" variant="outline">
+                    <a href={`${base}${m.docUrl}`} download>
+                      <FileDown className="mr-1.5 h-4 w-4" />
+                      Descargar
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
